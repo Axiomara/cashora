@@ -17,6 +17,26 @@ class Barang_model extends CI_Model {
             ->result();
     }
 
+    public function search_ajax($keyword = '') {
+    $keyword = trim($keyword);
+
+    $this->db->select('id_barang, kode_barang, nama_barang, harga_jual, stok');
+    $this->db->from($this->table);
+
+    if ($keyword !== '') {
+        $this->db->group_start();
+        $this->db->like('kode_barang', $keyword);
+        $this->db->or_like('nama_barang', $keyword);
+        $this->db->group_end();
+    }
+
+    $this->db->order_by('nama_barang', 'ASC');
+    $this->db->limit(10);
+
+    return $this->db->get()->result_array();
+    }
+
+
     public function insert($data)
     {
         if (empty($data)) return false;
@@ -42,5 +62,16 @@ class Barang_model extends CI_Model {
 
         return $this->db->insert($this->table, $insertData);
     }
+
+    public function get_by_id($id_barang) {
+    return $this->db
+        ->select('id_barang, kode_barang, nama_barang, harga_jual, stok')
+        ->from('barang')
+        ->where('id_barang', (int)$id_barang)
+        ->limit(1)
+        ->get()
+        ->row();
+    }
+
 
 }
