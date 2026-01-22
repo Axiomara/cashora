@@ -181,10 +181,44 @@
   const jumlahBayar = document.getElementById("jumlahBayar");
   const kembalian = document.getElementById("kembalian");
 
+  const formTransaksi = document.getElementById("formTransaksi");
   const cartJson = document.getElementById("cartJson");
   const totalInput = document.getElementById("totalInput");
   const bayarInput = document.getElementById("bayarInput");
   const kembalianInput = document.getElementById("kembalianInput");
+
+  // ======================
+  // LOCAL STORAGE (ANTI INPUT ULANG)
+  // ======================
+  const LS_CART = "kasir_cart";
+  const LS_BAYAR = "kasir_bayar";
+
+  function saveLocal() {
+    localStorage.setItem(LS_CART, JSON.stringify(cart));
+    localStorage.setItem(LS_BAYAR, jumlahBayar.value || "0");
+  }
+
+  function loadLocal() {
+    const savedCart = localStorage.getItem(LS_CART);
+    const savedBayar = localStorage.getItem(LS_BAYAR);
+
+    if (savedCart) {
+      try {
+        cart = JSON.parse(savedCart) || [];
+      } catch (e) {
+        cart = [];
+      }
+    }
+
+    if (savedBayar !== null) {
+      jumlahBayar.value = savedBayar;
+    }
+  }
+
+  function clearLocal() {
+    localStorage.removeItem(LS_CART);
+    localStorage.removeItem(LS_BAYAR);
+  }
 
   // ======================
   // SHOW / HIDE RESULT
@@ -280,13 +314,12 @@
     kodeSelected.value = kode;
     namaSelected.value = nama;
 
-    barangSearch.value = kode + " - " + nama;
+    barangSearch.value = nama;
     hargaInput.value = formatRupiah(harga);
 
     hideResult();
     qtyInput.focus();
   }
-
   window.pilihProduk = pilihProduk;
 
   document.addEventListener("click", function (e) {
@@ -321,7 +354,7 @@
             <td class="text-center">${item.qty}</td>
             <td class="text-end fw-semibold">${formatRupiah(item.subtotal)}</td>
             <td class="text-end">
-              <button class="btn btn-sm btn-outline-danger" onclick="hapusItem(${index})">
+              <button type="button" class="btn btn-sm btn-outline-danger" onclick="hapusItem(${index})">
                 <i class="bi bi-trash"></i>
               </button>
             </td>
@@ -331,6 +364,7 @@
     }
 
     hitungTotal();
+    saveLocal();
   }
 
   function hitungTotal() {
@@ -349,12 +383,17 @@
     kembalianInput.value = kembali > 0 ? kembali : 0;
   }
 
-  jumlahBayar.addEventListener("input", hitungTotal);
+  jumlahBayar.addEventListener("input", function () {
+    hitungTotal();
+    saveLocal();
+  });
 
   // ======================
   // TAMBAH KE CART
   // ======================
-  document.getElementById("btnTambah").addEventListener("click", function () {
+  document.getElementById("btnTambah").addEventListener("click", function (e) {
+    e.preventDefault();
+
     const id_barang = idBarangSelected.value;
 
     if (!id_barang) {
@@ -428,19 +467,23 @@
   // ======================
   // RESET CART
   // ======================
-  document.getElementById("btnReset").addEventListener("click", function () {
+  document.getElementById("btnReset").addEventListener("click", function (e) {
+    e.preventDefault();
+
     if (confirm("Reset keranjang?")) {
       cart = [];
       jumlahBayar.value = 0;
       renderCart();
+      clearLocal();
     }
   });
 
   // ======================
-  // SIMPAN TRANSAKSI
+  // SUBMIT FORM (VALIDASI)
   // ======================
-  document.getElementById("btnSimpan").addEventListener("click", function () {
+  formTransaksi.addEventListener("submit", function (e) {
     if (cart.length === 0) {
+      e.preventDefault();
       alert("Keranjang masih kosong!");
       return;
     }
@@ -449,13 +492,22 @@
     const bayar = parseInt(bayarInput.value || 0);
 
     if (bayar < total) {
+      e.preventDefault();
       alert("Uang bayar kurang!");
       return;
     }
 
-    document.getElementById("formTransaksi").submit();
+    // ✅ kalau lolos validasi, biarin submit ke server
+    // ❌ jangan clearLocal() disini, karena kalau server error user butuh data tetap ada
   });
 
-  // init
-  renderCart();
+  // ======================
+  // INIT
+  // ======================
+  document.addEventListener("DOMContentLoaded", function () {
+    loadLocal();
+    renderCart();
+    barangSearch.focus();
+  });
 </script>
+

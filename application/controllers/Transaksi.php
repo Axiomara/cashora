@@ -60,7 +60,7 @@ class Transaksi extends CI_Controller {
                 );
                 redirect('transaksi');
             }
-
+        $harga       = (int)$barang->harga_jual;
             $harga    = (int)$barang->harga_jual;
             $subtotal = $harga * $qty;
 
@@ -87,13 +87,43 @@ class Transaksi extends CI_Controller {
         $result = $this->Transaksi_model->create_transaksi($detailItems, $total, $bayar, $kembalian);
 
         if ($result['status'] === true) {
-           echo "berhasil";
+           redirect('transaksi/sukses/' . $result['id_transaksi']);
         } else {
             $this->session->set_flashdata('error', $result['message']);
             echo "gagal";
     }
 
 }
+
+    public function nota_pdf($id_transaksi = null)
+    {
+        if (!$id_transaksi) redirect('transaksi/riwayat');
+
+        $this->load->library('pdf');
+        $this->load->model('Transaksi_model');
+
+        $data['transaksi'] = $this->Transaksi_model->get_by_id($id_transaksi);
+        $data['detail']    = $this->Transaksi_model->get_detail($id_transaksi);
+
+        if (!$data['transaksi']) {
+            show_404();
+        }
+
+        // HTML nota thermal (58mm)
+        $html = $this->load->view('transaksi/pdf_nota_58mm', $data, true);
+
+        // Dompdf tidak punya ukuran 58mm langsung, jadi pakai custom paper
+        // width 58mm = 164.4 pt
+        // height dibuat panjang (misalnya 700 pt), nanti otomatis kepanjangannya menyesuaikan isi
+        $this->pdf->thermal($html, "NOTA_" . $data['transaksi']->kode_transaksi . ".pdf");
+    }
+
+    public function sukses($id_transaksi) {
+    $data['id_transaksi'] = $id_transaksi;
+    $this->load->view('transaksi/sukses', $data);
+    }
+
+
 }
 
 

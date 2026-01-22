@@ -55,6 +55,7 @@ $route['transaksi/riwayat'] = 'transaksi/riwayat';
 $route['transaksi/detail/(:num)'] = 'transaksi/detail/$1';
 $route['transaksi/struk/(:num)'] = 'transaksi/struk/$1';
 $route['api/cari-produk'] = 'api/cari_produk';
+$route['transaksi/nota-pdf/(:num)'] = 'transaksi/nota_pdf/$1';
 
 $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
