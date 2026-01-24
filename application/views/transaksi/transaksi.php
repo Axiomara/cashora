@@ -28,10 +28,15 @@
             <div class="card-body px-4 pb-4 pt-2">
               <div class="mb-3">
                 <label class="form-label">Cari Barang (Kode / Nama)</label>
-                <input type="text" class="form-control" id="barangSearch"
-                  placeholder="Ketik kode / nama barang..."
-                >
-
+                <input type="text"
+                    class="form-control"
+                    id="barangSearch"
+                    placeholder="Ketik nama atau kode barang..."
+                    autocomplete="off"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                  >
                 <div id="resultProduk" class="list-group mt-2" style="display:none;"></div>
 
                 <input type="hidden" id="idBarangSelected">
@@ -296,7 +301,6 @@
 
         resultProduk.innerHTML = html;
         showResult();
-
       } catch (err) {
         console.log(err);
         hideResult();
@@ -329,7 +333,7 @@
   });
 
   // ======================
-  // RENDER CART
+  // RENDER CART (dengan + - dan input qty)
   // ======================
   function renderCart() {
     cartTable.innerHTML = "";
@@ -350,11 +354,50 @@
               <div class="fw-semibold">${item.nama_barang}</div>
               <small class="text-muted">${item.kode_barang}</small>
             </td>
+
             <td class="text-end">${formatRupiah(item.harga)}</td>
-            <td class="text-center">${item.qty}</td>
-            <td class="text-end fw-semibold">${formatRupiah(item.subtotal)}</td>
+
+            <td class="text-center">
+              <div class="d-flex justify-content-center align-items-center gap-1">
+                <button type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  onclick="qtyMinus(${index})"
+                  title="Kurangi"
+                >
+                  <i class="bi bi-dash"></i>
+                </button>
+
+                <input type="number"
+                  class="form-control form-control-sm text-center qty-input"
+                  style="width:70px;"
+                  placeholder="0"
+                  value="${item.qty ?? ''}"
+                  oninput="qtyInputChange(${index}, this.value)"
+                >
+
+                <button type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  onclick="qtyPlus(${index})"
+                  title="Tambah"
+                >
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+
+              <small class="text-muted d-block mt-1">
+                Stok: ${item.stok ?? 0}
+              </small>
+            </td>
+
+             <td class="text-end fw-semibold" id="subtotal_${index}">
+              ${formatRupiah(item.subtotal)}
+            </td>
+
             <td class="text-end">
-              <button type="button" class="btn btn-sm btn-outline-danger" onclick="hapusItem(${index})">
+              <button type="button"
+                class="btn btn-sm btn-outline-danger"
+                onclick="hapusItem(${index})"
+              >
                 <i class="bi bi-trash"></i>
               </button>
             </td>
@@ -367,6 +410,9 @@
     saveLocal();
   }
 
+  // ======================
+  // HITUNG TOTAL + KEMBALIAN
+  // ======================
   function hitungTotal() {
     const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
     totalBelanja.value = formatRupiah(total);
@@ -376,7 +422,6 @@
 
     kembalian.value = formatRupiah(kembali > 0 ? kembali : 0);
 
-    // hidden input untuk submit
     cartJson.value = JSON.stringify(cart);
     totalInput.value = total;
     bayarInput.value = bayar;
@@ -389,13 +434,96 @@
   });
 
   // ======================
+  // QTY CONTROL (+ - input manual)
+  // ======================
+  function qtyMinus(index) {
+  if (!cart[index]) return;
+
+  let qtyNow = parseInt(cart[index].qty || 0);
+  qtyNow = qtyNow - 1;
+
+  // ✅ boleh 0 (tidak dihapus)
+  if (qtyNow < 0) qtyNow = 0;
+
+  cart[index].qty = qtyNow;
+  cart[index].subtotal = cart[index].qty * cart[index].harga;
+
+  renderCart();
+}
+
+
+  function qtyPlus(index) {
+    if (!cart[index]) return;
+
+    const stok = parseInt(cart[index].stok || 0);
+    const qtySekarang = parseInt(cart[index].qty || 0);
+
+    if (qtySekarang + 1 > stok) {
+      alert("Stok tidak cukup! Stok tersedia: " + stok);
+      return;
+    }
+
+    cart[index].qty = qtySekarang + 1;
+    cart[index].subtotal = cart[index].qty * cart[index].harga;
+
+    renderCart();
+  }
+
+  function qtyInputChange(index, value) {
+  if (!cart[index]) return;
+
+  // kalau kosong -> subtotal 0
+  if (value === "" || value === null) {
+    cart[index].qty = "";
+    cart[index].subtotal = 0;
+
+    const elSub = document.getElementById("subtotal_" + index);
+    if (elSub) elSub.innerText = formatRupiah(0);
+
+    hitungTotal();
+    saveLocal();
+    return;
+  }
+
+  let qtyBaru = parseInt(value || 0);
+  if (isNaN(qtyBaru) || qtyBaru < 0) qtyBaru = 0;
+
+  const stok = parseInt(cart[index].stok || 0);
+
+  if (qtyBaru > stok) {
+    alert("Qty melebihi stok! Stok tersedia: " + stok);
+    qtyBaru = stok;
+
+    // balikin isi input ke stok maksimal
+    const inputs = document.querySelectorAll(".qty-input");
+    if (inputs[index]) inputs[index].value = qtyBaru;
+  }
+
+  cart[index].qty = qtyBaru;
+  cart[index].subtotal = qtyBaru * cart[index].harga;
+
+  // ✅ update SUBTOTAL yang benar
+  const elSub = document.getElementById("subtotal_" + index);
+  if (elSub) elSub.innerText = formatRupiah(cart[index].subtotal);
+
+  hitungTotal();
+  saveLocal();
+}
+
+
+
+
+  window.qtyMinus = qtyMinus;
+  window.qtyPlus = qtyPlus;
+  window.qtyInputChange = qtyInputChange;
+
+  // ======================
   // TAMBAH KE CART
   // ======================
   document.getElementById("btnTambah").addEventListener("click", function (e) {
     e.preventDefault();
 
     const id_barang = idBarangSelected.value;
-
     if (!id_barang) {
       alert("Cari dan pilih barang dulu!");
       return;
@@ -427,6 +555,7 @@
         return;
       }
 
+      cart[existingIndex].stok = stok;
       cart[existingIndex].qty = newQty;
       cart[existingIndex].subtotal = cart[existingIndex].qty * cart[existingIndex].harga;
     } else {
@@ -435,6 +564,7 @@
         kode_barang: kode_barang,
         nama_barang: nama_barang,
         harga: harga,
+        stok: stok,
         qty: qty,
         subtotal: harga * qty
       });
@@ -482,24 +612,34 @@
   // SUBMIT FORM (VALIDASI)
   // ======================
   formTransaksi.addEventListener("submit", function (e) {
-    if (cart.length === 0) {
-      e.preventDefault();
-      alert("Keranjang masih kosong!");
-      return;
-    }
+  if (cart.length === 0) {
+    e.preventDefault();
+    alert("Keranjang masih kosong!");
+    return;
+  }
 
-    const total = parseInt(totalInput.value || 0);
-    const bayar = parseInt(bayarInput.value || 0);
-
-    if (bayar < total) {
-      e.preventDefault();
-      alert("Uang bayar kurang!");
-      return;
-    }
-
-    // ✅ kalau lolos validasi, biarin submit ke server
-    // ❌ jangan clearLocal() disini, karena kalau server error user butuh data tetap ada
+  // ✅ cek qty kosong / 0
+  const invalid = cart.filter(item => {
+    const q = item.qty;
+    return q === "" || q === null || isNaN(parseInt(q)) || parseInt(q) <= 0;
   });
+
+  if (invalid.length > 0) {
+    e.preventDefault();
+    alert("Ada barang yang Qty masih 0/kosong. Perbaiki dulu sebelum simpan!");
+    return;
+  }
+
+  const total = parseInt(totalInput.value || 0);
+  const bayar = parseInt(bayarInput.value || 0);
+
+  if (bayar < total) {
+    e.preventDefault();
+    alert("Uang bayar kurang!");
+    return;
+  }
+});
+
 
   // ======================
   // INIT
@@ -511,3 +651,18 @@
   });
 </script>
 
+<style>
+  /* Hilangkan panah input number (Chrome, Edge, Safari) */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Hilangkan panah input number (Firefox) */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+</style>
+
+    
