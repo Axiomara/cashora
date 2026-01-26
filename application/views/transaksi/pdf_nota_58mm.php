@@ -95,10 +95,10 @@
       <tr>
         <td class="item-name">
           <?= $d->nama_barang ?><br>
-          <span class="small"><?= $d->qty ?> x Rp<?= number_format($d->harga, 0, ',', '.') ?></span>
+          <span class="small"><?= $d->qty ?> x <?= format_rupiah($d->harga) ?></span>
         </td>
         <td class="item-subtotal">
-          Rp<?= number_format($d->subtotal, 0, ',', '.') ?>
+          <?= format_rupiah($d->subtotal) ?>
         </td>
       </tr>
     <?php endforeach; ?>
@@ -110,15 +110,15 @@
   <table>
     <tr>
       <td class="sum-label">Total</td>
-      <td class="sum-value">Rp<?= number_format($transaksi->total, 0, ',', '.') ?></td>
+      <td class="sum-value"><?= format_rupiah($transaksi->total) ?></td>
     </tr>
     <tr>
       <td class="sum-label">Bayar</td>
-      <td class="sum-value">Rp<?= number_format($transaksi->bayar, 0, ',', '.') ?></td>
+      <td class="sum-value"><?= format_rupiah($transaksi->bayar) ?></td>
     </tr>
     <tr>
       <td class="sum-label">Kembali</td>
-      <td class="sum-value">Rp<?= number_format($transaksi->kembalian, 0, ',', '.') ?></td>
+      <td class="sum-value"><?= format_rupiah($transaksi->kembalian) ?></td>
     </tr>
   </table>
 
