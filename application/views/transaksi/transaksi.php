@@ -25,6 +25,8 @@
               <small class="text-muted">Pilih barang lalu masukkan jumlah</small>
             </div>
 
+            <input type="hidden" name="trx_token" value="<?= $trx_token ?>">
+
             <div class="card-body px-4 pb-4 pt-2">
               <div class="mb-3">
                 <label class="form-label">Cari Barang (Kode / Nama)</label>
@@ -193,7 +195,7 @@
   const kembalianInput = document.getElementById("kembalianInput");
 
   // ======================
-  // LOCAL STORAGE (ANTI INPUT ULANG)
+  // LOCAL STORAGE
   // ======================
   const LS_CART = "kasir_cart";
   const LS_BAYAR = "kasir_bayar";
@@ -333,7 +335,7 @@
   });
 
   // ======================
-  // RENDER CART (dengan + - dan input qty)
+  // RENDER CART
   // ======================
   function renderCart() {
     cartTable.innerHTML = "";
@@ -383,13 +385,10 @@
                   <i class="bi bi-plus"></i>
                 </button>
               </div>
-
-              <small class="text-muted d-block mt-1">
-                Stok: ${item.stok ?? 0}
-              </small>
+              <small class="text-muted d-block mt-1">Stok: ${item.stok ?? 0}</small>
             </td>
 
-             <td class="text-end fw-semibold" id="subtotal_${index}">
+            <td class="text-end fw-semibold" id="subtotal_${index}">
               ${formatRupiah(item.subtotal)}
             </td>
 
@@ -397,6 +396,7 @@
               <button type="button"
                 class="btn btn-sm btn-outline-danger"
                 onclick="hapusItem(${index})"
+                title="Hapus"
               >
                 <i class="bi bi-trash"></i>
               </button>
@@ -411,10 +411,10 @@
   }
 
   // ======================
-  // HITUNG TOTAL + KEMBALIAN
+  // HITUNG TOTAL
   // ======================
   function hitungTotal() {
-    const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
+    const total = cart.reduce((sum, item) => sum + (parseInt(item.subtotal) || 0), 0);
     totalBelanja.value = formatRupiah(total);
 
     const bayar = parseInt(jumlahBayar.value || 0);
@@ -434,23 +434,20 @@
   });
 
   // ======================
-  // QTY CONTROL (+ - input manual)
+  // QTY CONTROL
   // ======================
   function qtyMinus(index) {
-  if (!cart[index]) return;
+    if (!cart[index]) return;
 
-  let qtyNow = parseInt(cart[index].qty || 0);
-  qtyNow = qtyNow - 1;
+    let qtyNow = parseInt(cart[index].qty || 0);
+    qtyNow = qtyNow - 1;
+    if (qtyNow < 0) qtyNow = 0;
 
-  // ✅ boleh 0 (tidak dihapus)
-  if (qtyNow < 0) qtyNow = 0;
+    cart[index].qty = qtyNow;
+    cart[index].subtotal = cart[index].qty * cart[index].harga;
 
-  cart[index].qty = qtyNow;
-  cart[index].subtotal = cart[index].qty * cart[index].harga;
-
-  renderCart();
-}
-
+    renderCart();
+  }
 
   function qtyPlus(index) {
     if (!cart[index]) return;
@@ -470,48 +467,44 @@
   }
 
   function qtyInputChange(index, value) {
-  if (!cart[index]) return;
+    if (!cart[index]) return;
 
-  // kalau kosong -> subtotal 0
-  if (value === "" || value === null) {
-    cart[index].qty = "";
-    cart[index].subtotal = 0;
+    // kosong -> subtotal 0
+    if (value === "" || value === null) {
+      cart[index].qty = "";
+      cart[index].subtotal = 0;
 
+      const elSub = document.getElementById("subtotal_" + index);
+      if (elSub) elSub.innerText = formatRupiah(0);
+
+      hitungTotal();
+      saveLocal();
+      return;
+    }
+
+    let qtyBaru = parseInt(value || 0);
+    if (isNaN(qtyBaru) || qtyBaru < 0) qtyBaru = 0;
+
+    const stok = parseInt(cart[index].stok || 0);
+
+    if (qtyBaru > stok) {
+      alert("Qty melebihi stok! Stok tersedia: " + stok);
+      qtyBaru = stok;
+
+      const inputs = document.querySelectorAll(".qty-input");
+      if (inputs[index]) inputs[index].value = qtyBaru;
+    }
+
+    cart[index].qty = qtyBaru;
+    cart[index].subtotal = qtyBaru * cart[index].harga;
+
+    // update subtotal baris saja (tanpa renderCart agar tidak hilang fokus)
     const elSub = document.getElementById("subtotal_" + index);
-    if (elSub) elSub.innerText = formatRupiah(0);
+    if (elSub) elSub.innerText = formatRupiah(cart[index].subtotal);
 
     hitungTotal();
     saveLocal();
-    return;
   }
-
-  let qtyBaru = parseInt(value || 0);
-  if (isNaN(qtyBaru) || qtyBaru < 0) qtyBaru = 0;
-
-  const stok = parseInt(cart[index].stok || 0);
-
-  if (qtyBaru > stok) {
-    alert("Qty melebihi stok! Stok tersedia: " + stok);
-    qtyBaru = stok;
-
-    // balikin isi input ke stok maksimal
-    const inputs = document.querySelectorAll(".qty-input");
-    if (inputs[index]) inputs[index].value = qtyBaru;
-  }
-
-  cart[index].qty = qtyBaru;
-  cart[index].subtotal = qtyBaru * cart[index].harga;
-
-  // ✅ update SUBTOTAL yang benar
-  const elSub = document.getElementById("subtotal_" + index);
-  if (elSub) elSub.innerText = formatRupiah(cart[index].subtotal);
-
-  hitungTotal();
-  saveLocal();
-}
-
-
-
 
   window.qtyMinus = qtyMinus;
   window.qtyPlus = qtyPlus;
@@ -520,10 +513,9 @@
   // ======================
   // TAMBAH KE CART
   // ======================
-  document.getElementById("btnTambah").addEventListener("click", function (e) {
-    e.preventDefault();
-
+  document.getElementById("btnTambah").addEventListener("click", function () {
     const id_barang = idBarangSelected.value;
+
     if (!id_barang) {
       alert("Cari dan pilih barang dulu!");
       return;
@@ -548,7 +540,7 @@
     const existingIndex = cart.findIndex(x => x.id_barang == id_barang);
 
     if (existingIndex !== -1) {
-      const newQty = cart[existingIndex].qty + qty;
+      const newQty = parseInt(cart[existingIndex].qty || 0) + qty;
 
       if (newQty > stok) {
         alert("Qty melebihi stok! Stok tersedia: " + stok);
@@ -597,9 +589,7 @@
   // ======================
   // RESET CART
   // ======================
-  document.getElementById("btnReset").addEventListener("click", function (e) {
-    e.preventDefault();
-
+  document.getElementById("btnReset").addEventListener("click", function () {
     if (confirm("Reset keranjang?")) {
       cart = [];
       jumlahBayar.value = 0;
@@ -609,37 +599,52 @@
   });
 
   // ======================
-  // SUBMIT FORM (VALIDASI)
+  // SUBMIT VALIDASI + ANTI DOUBLE SUBMIT
   // ======================
+  let isSubmitting = false;
+
   formTransaksi.addEventListener("submit", function (e) {
-  if (cart.length === 0) {
-    e.preventDefault();
-    alert("Keranjang masih kosong!");
-    return;
-  }
+    if (isSubmitting) {
+      e.preventDefault();
+      return;
+    }
 
-  // ✅ cek qty kosong / 0
-  const invalid = cart.filter(item => {
-    const q = item.qty;
-    return q === "" || q === null || isNaN(parseInt(q)) || parseInt(q) <= 0;
+    if (cart.length === 0) {
+      e.preventDefault();
+      alert("Keranjang masih kosong!");
+      return;
+    }
+
+    // cek qty kosong / 0
+    const invalid = cart.filter(item => {
+      const q = item.qty;
+      return q === "" || q === null || isNaN(parseInt(q)) || parseInt(q) <= 0;
+    });
+
+    if (invalid.length > 0) {
+      e.preventDefault();
+      alert("Ada barang yang Qty masih 0/kosong. Perbaiki dulu sebelum simpan!");
+      return;
+    }
+
+    const total = parseInt(totalInput.value || 0);
+    const bayar = parseInt(bayarInput.value || 0);
+
+    if (bayar < total) {
+      e.preventDefault();
+      alert("Uang bayar kurang!");
+      return;
+    }
+
+    // disable submit dobel + loading button
+    isSubmitting = true;
+
+    const btn = document.getElementById("btnSimpan");
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...`;
+    }
   });
-
-  if (invalid.length > 0) {
-    e.preventDefault();
-    alert("Ada barang yang Qty masih 0/kosong. Perbaiki dulu sebelum simpan!");
-    return;
-  }
-
-  const total = parseInt(totalInput.value || 0);
-  const bayar = parseInt(bayarInput.value || 0);
-
-  if (bayar < total) {
-    e.preventDefault();
-    alert("Uang bayar kurang!");
-    return;
-  }
-});
-
 
   // ======================
   // INIT
@@ -650,6 +655,7 @@
     barangSearch.focus();
   });
 </script>
+
 
 <style>
   /* Hilangkan panah input number (Chrome, Edge, Safari) */

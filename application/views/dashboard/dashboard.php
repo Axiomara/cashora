@@ -69,7 +69,7 @@
         <div>
           <p class="text-muted mb-1">Omzet Hari Ini</p>
           <h4 class="mb-0">
-            Rp<?= number_format($omzet_hari_ini ?? 0, 0, ',', '.') ?>
+            <?= format_rupiah($omzet_hari_ini ?? 0) ?>
           </h4>
           <small class="text-muted">Total penjualan hari ini</small>
         </div>
@@ -259,7 +259,7 @@
                               <?= date('d-m-Y H:i', strtotime($t->tanggal)) ?>
                             </td>
                             <td class="text-end fw-semibold">
-                              Rp<?= number_format($t->total, 0, ',', '.') ?>
+                              <?= format_rupiah($t->total) ?>
                             </td>
                           </tr>
                         <?php endforeach; ?>

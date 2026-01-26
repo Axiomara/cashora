@@ -98,4 +98,76 @@ class Transaksi_model extends CI_Model {
             ->get()
             ->result();
     }
+
+    public function get_riwayat($q = null, $from = null, $to = null) {
+    $this
+    ->db
+    ->from('transaksi');
+
+    if (!empty($q)) {
+        $this
+        ->db
+        ->like('kode_transaksi', $q);
+    }
+
+    if (!empty($from)) {
+        $this
+        ->db
+        ->where('DATE(tanggal) >=', $from);
+    }
+
+    if (!empty($to)) {
+        $this
+        ->db
+        ->where('DATE(tanggal) <=', $to);
+    }
+
+    $this->db->order_by('id_transaksi', 'DESC');
+    return $this
+    ->db
+    ->get()
+    ->result();
+    }
+
+    public function count_riwayat($q = null, $from = null, $to = null)
+{
+    $this->db->from('transaksi');
+
+    if (!empty($q)) {
+        $this->db->like('kode_transaksi', $q);
+    }
+
+    if (!empty($from)) {
+        $this->db->where('DATE(tanggal) >=', $from);
+    }
+
+    if (!empty($to)) {
+        $this->db->where('DATE(tanggal) <=', $to);
+    }
+
+    return $this->db->count_all_results();
+}
+
+public function get_riwayat_paging($q = null, $from = null, $to = null, $limit = 10, $offset = 0)
+{
+    $this->db->from('transaksi');
+
+    if (!empty($q)) {
+        $this->db->like('kode_transaksi', $q);
+    }
+
+    if (!empty($from)) {
+        $this->db->where('DATE(tanggal) >=', $from);
+    }
+
+    if (!empty($to)) {
+        $this->db->where('DATE(tanggal) <=', $to);
+    }
+
+    $this->db->order_by('id_transaksi', 'DESC');
+    $this->db->limit((int)$limit, (int)$offset);
+
+    return $this->db->get()->result();
+}
+
 }
