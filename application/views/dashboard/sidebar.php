@@ -14,25 +14,22 @@
         <ul class="menu">
             <li class="sidebar-title">Menu</li>
             
-            <li
-                class="sidebar-item active ">
-                <a href="index.html" class='sidebar-link'>
-                    <i class="bi bi-grid-fill"></i>
-                    <span>Dashboard</span>
-                </a>
-                
-
+           <li class="sidebar-item <?= (uri_string() == '' || uri_string() == 'dashboard') ? 'active' : '' ?>">
+            <a href="<?= base_url('dashboard') ?>" class="sidebar-link">
+                <i class="bi bi-grid-fill"></i>
+                <span>Dashboard</span>
+            </a>
             </li>
 
-            <li
-                class="sidebar-item">
-                <a href="index.html" class='sidebar-link'>
-                    <i class="bi bi-grid-fill"></i>
-                    <span>Transaksi</span>
-                </a>
-                
 
+           <li class="sidebar-item <?= (strpos(uri_string(), 'transaksi') === 0) ? 'active' : '' ?>">
+            <a href="<?= base_url('transaksi') ?>" class="sidebar-link">
+                <i class="bi bi-grid-fill"></i>
+                <span>Transaksi</span>
+            </a>
             </li>
+
+
             
             <li
                 class="sidebar-item  has-sub">
