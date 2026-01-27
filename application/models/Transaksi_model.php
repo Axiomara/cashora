@@ -79,6 +79,22 @@ class Transaksi_model extends CI_Model {
             ->result();
     }
 
+     public function get_transaksi($id)
+    {
+        return $this->db
+            ->where('id_transaksi', $id)
+            ->get('transaksi')
+            ->row();
+    }
+
+     public function get_retur_by_transaksi($id_transaksi)
+    {
+        return $this->db
+            ->where('id_transaksi', $id_transaksi)
+            ->get('retur')
+            ->result();
+    }
+
     public function get_by_id($id_transaksi)
     {
         return $this->db->select('*')
@@ -169,5 +185,7 @@ public function get_riwayat_paging($q = null, $from = null, $to = null, $limit =
 
     return $this->db->get()->result();
 }
+
+
 
 }

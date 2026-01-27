@@ -167,95 +167,129 @@ class Transaksi extends CI_Controller {
     $this->load->view('transaksi/sukses', $data);
     }
 
-public function riwayat()
-{
-    $this->load->library('pagination');
+        public function riwayat()
+        {
+            $this->load->library('pagination');
 
-    $q        = trim((string)$this->input->get('q', TRUE));
-    $from     = trim((string)$this->input->get('from', TRUE));
-    $to       = trim((string)$this->input->get('to', TRUE));
-    $pageParam = $this->input->get('page', TRUE);
+            $q        = trim((string)$this->input->get('q', TRUE));
+            $from     = trim((string)$this->input->get('from', TRUE));
+            $to       = trim((string)$this->input->get('to', TRUE));
+            $pageParam = $this->input->get('page', TRUE);
 
-    // ✅ rapihin URL hanya kalau q/from/to kosong dan page juga kosong
-    if ($q === '' && $from === '' && $to === '' && ($pageParam === null || $pageParam === '')) {
-        if ($this->input->server('QUERY_STRING')) {
-            redirect('transaksi/riwayat');
-            return;
+            // ✅ rapihin URL hanya kalau q/from/to kosong dan page juga kosong
+            if ($q === '' && $from === '' && $to === '' && ($pageParam === null || $pageParam === '')) {
+                if ($this->input->server('QUERY_STRING')) {
+                    redirect('transaksi/riwayat');
+                    return;
+                }
+            }
+
+            $perPage = 10;
+
+            $totalRows = $this->Transaksi_model->count_riwayat($q, $from, $to);
+
+            // ==========================
+            // PAGINATION CONFIG
+            // ==========================
+            $config['base_url'] = base_url('transaksi/riwayat');
+            $config['total_rows'] = $totalRows;
+            $config['per_page'] = $perPage;
+
+            $config['page_query_string'] = TRUE;
+            $config['query_string_segment'] = 'page';
+            $config['reuse_query_string'] = TRUE;
+            $config['use_page_numbers'] = TRUE;
+            $config['full_tag_open']  = '<nav><ul class="pagination justify-content-end mb-0">';
+            $config['full_tag_close'] = '</ul></nav>';
+
+            $config['num_tag_open']   = '<li class="page-item">';
+            $config['num_tag_close']  = '</li>';
+
+            $config['cur_tag_open']   = '<li class="page-item active"><a class="page-link" href="#">';
+            $config['cur_tag_close']  = '</a></li>';
+
+            $config['next_tag_open']  = '<li class="page-item">';
+            $config['next_tag_close'] = '</li>';
+
+            $config['prev_tag_open']  = '<li class="page-item">';
+            $config['prev_tag_close'] = '</li>';
+
+            $config['first_tag_open']  = '<li class="page-item">';
+            $config['first_tag_close'] = '</li>';
+
+            $config['last_tag_open']  = '<li class="page-item">';
+            $config['last_tag_close'] = '</li>';
+
+            $config['attributes'] = ['class' => 'page-link'];
+
+            $config['first_link'] = '«';
+            $config['last_link']  = '»';
+            $config['next_link']  = '›';
+            $config['prev_link']  = '‹';
+
+            $this->pagination->initialize($config);
+
+            // ==========================
+            // PAGE -> OFFSET
+            // ==========================
+            $page = (ctype_digit((string)$pageParam) && (int)$pageParam > 0) ? (int)$pageParam : 1;
+            $offset = ($page - 1) * $perPage;
+
+            $data['q']    = $q;
+            $data['from'] = $from;
+            $data['to']   = $to;
+
+            $data['list'] = $this->Transaksi_model->get_riwayat_paging($q, $from, $to, $perPage, $offset);
+            $data['pagination'] = $this->pagination->create_links();
+
+            $data['totalRows'] = $totalRows;
+            $data['perPage']   = $perPage;
+            $data['offset']    = $offset;
+            $data['page']      = $page;
+
+            $this->load->view('dashboard/header' );
+            $this->load->view('dashboard/sidebar');
+            $this->load->view('transaksi/riwayat', $data);
+            $this->load->view('dashboard/footer');
         }
+
+        public function detail($id_transaksi) {
+            $transaksi = $this->Transaksi_model->get_transaksi($id_transaksi);
+            if (!$transaksi) {
+                show_404();
+            }
+
+            $detail = $this->Transaksi_model->get_detail($id_transaksi);
+            $retur  = $this->Transaksi_model->get_retur_by_transaksi($id_transaksi);
+
+            $data = [
+                'transaksi' => $transaksi,
+                'detail'    => $detail,
+                'retur'     => $retur
+            ];
+
+            
+            $this->load->view('dashboard/header' );
+            $this->load->view('dashboard/sidebar');
+            $this->load->view('transaksi/detail', $data);
+            $this->load->view('dashboard/footer');
+        }
+
+
+        public function go_retur($id_transaksi) {
+    // validasi transaksi ada
+    $transaksi = $this->Transaksi_model->get_by_id($id_transaksi);
+    if (!$transaksi) {
+        show_404();
     }
 
-    $perPage = 10;
+    // set session izin retur
+    $this->session->set_userdata('allow_retur', $id_transaksi);
 
-    $totalRows = $this->Transaksi_model->count_riwayat($q, $from, $to);
-
-    // ==========================
-    // PAGINATION CONFIG
-    // ==========================
-    $config['base_url'] = base_url('transaksi/riwayat');
-    $config['total_rows'] = $totalRows;
-    $config['per_page'] = $perPage;
-
-    $config['page_query_string'] = TRUE;
-    $config['query_string_segment'] = 'page';
-    $config['reuse_query_string'] = TRUE;
-
-    // ✅ page = 1,2,3 (bukan offset)
-    $config['use_page_numbers'] = TRUE;
-
-    // styling
-    $config['full_tag_open']  = '<nav><ul class="pagination justify-content-end mb-0">';
-    $config['full_tag_close'] = '</ul></nav>';
-
-    $config['num_tag_open']   = '<li class="page-item">';
-    $config['num_tag_close']  = '</li>';
-
-    $config['cur_tag_open']   = '<li class="page-item active"><a class="page-link" href="#">';
-    $config['cur_tag_close']  = '</a></li>';
-
-    $config['next_tag_open']  = '<li class="page-item">';
-    $config['next_tag_close'] = '</li>';
-
-    $config['prev_tag_open']  = '<li class="page-item">';
-    $config['prev_tag_close'] = '</li>';
-
-    $config['first_tag_open']  = '<li class="page-item">';
-    $config['first_tag_close'] = '</li>';
-
-    $config['last_tag_open']  = '<li class="page-item">';
-    $config['last_tag_close'] = '</li>';
-
-    $config['attributes'] = ['class' => 'page-link'];
-
-    $config['first_link'] = '«';
-    $config['last_link']  = '»';
-    $config['next_link']  = '›';
-    $config['prev_link']  = '‹';
-
-    $this->pagination->initialize($config);
-
-    // ==========================
-    // PAGE -> OFFSET
-    // ==========================
-    $page = (ctype_digit((string)$pageParam) && (int)$pageParam > 0) ? (int)$pageParam : 1;
-    $offset = ($page - 1) * $perPage;
-
-    $data['q']    = $q;
-    $data['from'] = $from;
-    $data['to']   = $to;
-
-    $data['list'] = $this->Transaksi_model->get_riwayat_paging($q, $from, $to, $perPage, $offset);
-    $data['pagination'] = $this->pagination->create_links();
-
-    $data['totalRows'] = $totalRows;
-    $data['perPage']   = $perPage;
-    $data['offset']    = $offset;
-    $data['page']      = $page;
-
-    $this->load->view('dashboard/header' );
-    $this->load->view('dashboard/sidebar');
-    $this->load->view('transaksi/riwayat', $data);
-    $this->load->view('dashboard/footer');
+    redirect('retur/form/' . $id_transaksi);
 }
+
+
 
 
 
