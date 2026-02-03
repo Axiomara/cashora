@@ -671,4 +671,56 @@
   }
 </style>
 
+
+<script>
+  document.addEventListener("keydown", function (e) {
+
+    const tag = document.activeElement.tagName.toLowerCase();
+    const isTyping = tag === "input" || tag === "textarea";
+
+    // ======================
+    // F2 → Fokus Cari Barang
+    // ======================
+    if (e.key === "F2") {
+      e.preventDefault();
+      document.getElementById("barangSearch")?.focus();
+      return;
+    }
+
+    // ======================
+    // ENTER → Tambah ke Keranjang
+    // (saat fokus di search / qty)
+    // ======================
+    if (e.key === "Enter") {
+      if (
+        document.activeElement.id === "barangSearch" ||
+        document.activeElement.id === "qtyInput"
+      ) {
+        e.preventDefault();
+        document.getElementById("btnTambah")?.click();
+      }
+      return;
+    }
+
+    // ======================
+    // F8 → Simpan Transaksi
+    // ======================
+    if (e.key === "F8") {
+      e.preventDefault();
+      document.getElementById("btnSimpan")?.click();
+      return;
+    }
+
+    // ======================
+    // ESC → Reset Keranjang
+    // ======================
+    if (e.key === "Escape") {
+      e.preventDefault();
+      document.getElementById("btnReset")?.click();
+      return;
+    }
+
+  });
+</script>
+
     
