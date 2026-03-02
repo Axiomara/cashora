@@ -14,21 +14,47 @@
         <ul class="menu">
             <li class="sidebar-title">Menu</li>
             
-           <li class="sidebar-item <?= (uri_string() == '' || uri_string() == 'dashboard') ? 'active' : '' ?>">
-            <a href="<?= base_url('dashboard') ?>" class="sidebar-link">
-                <i class="bi bi-grid-fill"></i>
-                <span>Dashboard</span>
-            </a>
-            </li>
+          <li class="sidebar-item <?= 
+    (uri_string() === '' || uri_string() === 'dashboard') 
+    ? 'active' : '' ?>">
+    <a href="<?= base_url('dashboard') ?>" class="sidebar-link">
+        <i class="bi bi-grid-fill"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
 
 
-           <li class="sidebar-item <?= (strpos(uri_string(), 'transaksi') === 0) ? 'active' : '' ?>">
-            <a href="<?= base_url('transaksi') ?>" class="sidebar-link">
-                <i class="bi bi-grid-fill"></i>
-                <span>Transaksi</span>
-            </a>
-            </li>
+<!-- KASIR -->
+<li class="sidebar-item <?= 
+    (uri_string() === 'transaksi') 
+    ? 'active' : '' ?>">
+    <a href="<?= base_url('transaksi') ?>" class="sidebar-link">
+        <i class="bi bi-cash-coin"></i>
+        <span>Kasir</span>
+    </a>
+</li>
 
+
+<!-- RIWAYAT TRANSAKSI -->
+<li class="sidebar-item <?= 
+    (uri_string() === 'transaksi/riwayat') 
+    ? 'active' : '' ?>">
+    <a href="<?= base_url('transaksi/riwayat') ?>" class="sidebar-link">
+        <i class="bi bi-clock-history"></i>
+        <span>Riwayat Transaksi</span>
+    </a>
+</li>
+
+
+<!-- INVENTORY -->
+<li class="sidebar-item <?= 
+    (uri_string() === 'barang') 
+    ? 'active' : '' ?>">
+    <a href="<?= base_url('barang') ?>" class="sidebar-link">
+        <i class="bi bi-box-seam-fill"></i>
+        <span>Inventory</span>
+    </a>
+</li>
 
             
             <li
