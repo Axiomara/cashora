@@ -1,114 +1,258 @@
-<div id="main">
-  <header class="mb-3">
-    <a href="#" class="burger-btn d-block d-xl-none">
-      <i class="bi bi-justify fs-3"></i>
-    </a>
-  </header>
+<style>
+/* ================= GLOBAL ================= */
+#main {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #f6f8fb;
+    min-height: 100vh;
+}
 
-  <div class="page-heading mb-3">
-    <h3 class="mb-1">Tambah Barang</h3>
-    <p class="text-muted mb-0">Input data barang untuk kios</p>
-  </div>
+/* ================= CARD ================= */
+.modern-card {
+    background: #ffffff;
+    border-radius: 1.25rem;
+    border: 1px solid #eef2f7;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
 
-  <div class="page-content">
-    <div class="row">
-      <!-- FULL WIDTH CARD -->
-      <div class="col-12">
+/* ================= HEADING ================= */
+.page-heading h4 {
+    font-weight: 700;
+    color: #0f172a;
+}
 
-        <div class="card shadow-sm border-0">
-          <div class="card-header bg-white border-0 px-4 pt-4 pb-2">
-            <h5 class="mb-0">Form Input Barang</h5>
-            <small class="text-muted">Isi data dengan benar agar transaksi lancar</small>
-          </div>
+.page-heading p {
+    color: #64748b;
+}
 
-          <div class="card-body px-4 pb-4 pt-3">
+/* ================= FORM ================= */
+.form-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #475569;
+    margin-bottom: .4rem;
+}
 
-            <?php if ($this->session->flashdata('success')) : ?>
-              <div class="alert alert-success">
-                <?= $this->session->flashdata('success') ?>
-              </div>
-            <?php endif; ?>
+.form-control,
+.form-select {
+    border-radius: .75rem;
+    border: 1px solid #e2e8f0;
+    background: #f9fbfd;
+    padding: .6rem .9rem;
+    transition: all .2s ease;
+}
 
-            <?php if ($this->session->flashdata('error')) : ?>
-              <div class="alert alert-danger">
-                <?= $this->session->flashdata('error') ?>
-              </div>
-            <?php endif; ?>
+.form-control:focus,
+.form-select:focus {
+    background: #ffffff;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
 
-            <form action="<?= base_url('barang/simpan') ?>" method="post" autocomplete="off">
+/* ================= BUTTON ================= */
+.btn-primary {
+    background: #4f46e5;
+    border: none;
+    border-radius: .75rem;
+    font-weight: 600;
+    padding: .65rem 1.6rem;
+    transition: all .25s ease;
+}
 
-              <div class="row g-3">
+.btn-primary:hover {
+    background: #4338ca;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+}
 
-                <!-- KODE BARANG -->
-                <div class="col-12 col-md-6 col-lg-4">
-                  <label class="form-label">Kode Barang</label>
-                  <input type="text" name="kode_barang"
-                    class="form-control <?= form_error('kode_barang') ? 'is-invalid' : '' ?>"
-                    placeholder="Contoh: BRG001"
-                    value="<?= set_value('kode_barang') ?>">
-                  <div class="invalid-feedback">
-                    <?= form_error('kode_barang') ?>
-                  </div>
-                </div>
+.btn-outline-secondary {
+    border-radius: .75rem;
+}
 
-                <!-- NAMA BARANG -->
-                <div class="col-12 col-md-6 col-lg-5">
-                  <label class="form-label">Nama Barang</label>
-                  <input type="text" name="nama_barang"
-                    class="form-control <?= form_error('nama_barang') ? 'is-invalid' : '' ?>"
-                    placeholder="Contoh: Indomie Goreng"
-                    value="<?= set_value('nama_barang') ?>">
-                  <div class="invalid-feedback">
-                    <?= form_error('nama_barang') ?>
-                  </div>
-                </div>
+/* ================= BADGE ================= */
+.badge-modern {
+    background: #eef2ff;
+    color: #4f46e5;
+    font-size: .7rem;
+    letter-spacing: .5px;
+    border-radius: .5rem;
+    font-weight: 600;
+}
 
-                <!-- STOK -->
-                <div class="col-12 col-md-6 col-lg-3">
-                  <label class="form-label">Stok</label>
-                  <input type="number" name="stok" min="0"
-                    class="form-control <?= form_error('stok') ? 'is-invalid' : '' ?>"
-                    placeholder="Contoh: 50"
-                    value="<?= set_value('stok') ?>">
-                  <div class="invalid-feedback">
-                    <?= form_error('stok') ?>
-                  </div>
-                </div>
+/* ================= ALERT ================= */
+.alert {
+    border-radius: .75rem;
+    border: none;
+    font-size: .85rem;
+}
 
-                <!-- HARGA JUAL -->
-                <div class="col-12 col-md-6 col-lg-4">
-                  <label class="form-label">Harga Jual (Rp)</label>
-                  <input type="number" name="harga_jual" min="0"
-                    class="form-control <?= form_error('harga_jual') ? 'is-invalid' : '' ?>"
-                    placeholder="Contoh: 3500"
-                    value="<?= set_value('harga_jual') ?>">
-                  <div class="invalid-feedback">
-                    <?= form_error('harga_jual') ?>
-                  </div>
-                </div>
+/* ================= DIVIDER ================= */
+.divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 2.5rem 0;
+}
+</style>
 
-              </div>
+<div id="main" class="p-3 p-md-4">
 
-              <hr class="my-4">
+    <!-- MOBILE MENU -->
+    <header class="mb-3 d-xl-none">
+        <a href="#" class="text-dark">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
 
-              <div class="d-flex justify-content-end gap-2">
-                <a href="<?= base_url('barang') ?>" class="btn btn-light">
-                  <i class="bi bi-arrow-left me-1"></i> Kembali
-                </a>
-                <button type="reset" class="btn btn-outline-secondary">
-                  Reset
-                </button>
-                <button type="submit" class="btn btn-primary">
-                  <i class="bi bi-save me-1"></i> Simpan Barang
-                </button>
-              </div>
+    <!-- PAGE HEADING -->
+    <div class="page-heading mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h4 class="mb-1">Tambah Barang</h4>
+                <p class="mb-0 small">
+                    Tambahkan produk baru ke dalam sistem inventaris
+                </p>
+            </div>
 
-            </form>
+            <span class="badge badge-modern px-3 py-2 text-uppercase">
+                <i class="bi bi-box-seam me-1"></i> Inventory
+            </span>
+        </div>
+    </div>
 
-          </div>
+    <div class="row g-4">
+
+        <!-- ================= FORM CARD ================= -->
+        <div class="col-12">
+            <div class="modern-card p-4 p-md-5">
+
+               <div class="mb-4">
+                    <h6 class="fw-bold mb-1 text-dark">Form Input Produk</h6>
+                    <small class="text-muted">
+                        Pastikan data yang dimasukkan sudah benar sebelum menyimpan
+                    </small>
+                </div> 
+
+                <!-- ALERT -->
+               <?php if ($this->session->flashdata('success')) : ?>
+    <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-4 border-0 d-flex align-items-start gap-3 mb-4" role="alert">
+
+        <div class="fs-4 text-success">
+            <i class="bi bi-check-circle-fill"></i>
         </div>
 
-      </div>
+        <div class="flex-grow-1">
+            <div class="fw-semibold mb-1">Berhasil</div>
+            <div class="small">
+                <?= $this->session->flashdata('success') ?>
+            </div>
+        </div>
+
+        <button type="button" class="btn-close mt-1" data-bs-dismiss="alert"></button>
     </div>
-  </div>
+<?php endif; ?>
+
+
+     <?php if ($this->session->flashdata('error_validation')) : ?>
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-4 border-0 d-flex align-items-start gap-3 mb-4" role="alert">
+
+        <div class="fs-4 text-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+
+        <div class="flex-grow-1">
+            <div class="fw-semibold mb-1">Terjadi Kesalahan</div>
+            <div class="small">
+                <?= $this->session->flashdata('error_validation') ?>
+            </div>
+        </div>
+
+        <button type="button" class="btn-close mt-1" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+                <form action="<?= base_url('barang/simpan') ?>" method="post" autocomplete="off">
+
+                    <div class="row g-4">
+
+                        <!-- KODE -->
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <label class="form-label">Kode Barang</label>
+                            <input type="text"
+                                   name="kode_barang"
+                                   class="form-control <?= form_error('kode_barang') ? 'is-invalid' : '' ?>"
+                                   placeholder="BRG001"
+                                   value="<?= set_value('kode_barang') ?>">
+                            <div class="invalid-feedback">
+                                <?= form_error('kode_barang') ?>
+                            </div>
+                        </div>
+
+                        <!-- NAMA -->
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <label class="form-label">Nama Barang</label>
+                            <input type="text"
+                                   name="nama_barang"
+                                   class="form-control <?= form_error('nama_barang') ? 'is-invalid' : '' ?>"
+                                   placeholder="Nama produk"
+                                   value="<?= set_value('nama_barang') ?>">
+                            <div class="invalid-feedback">
+                                <?= form_error('nama_barang') ?>
+                            </div>
+                        </div>
+
+                        <!-- STOK -->
+                        <div class="col-6 col-lg-2">
+                            <label class="form-label">Stok Awal</label>
+                            <input type="number"
+                                   name="stok"
+                                   min="0"
+                                   class="form-control <?= form_error('stok') ? 'is-invalid' : '' ?>"
+                                   placeholder="0"
+                                   value="<?= set_value('stok') ?>">
+                            <div class="invalid-feedback">
+                                <?= form_error('stok') ?>
+                            </div>
+                        </div>
+
+                        <!-- HARGA -->
+                        <div class="col-6 col-lg-3">
+                            <label class="form-label">Harga Jual</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">Rp</span>
+                                <input type="number"
+                                       name="harga_jual"
+                                       min="0"
+                                       class="form-control border-start-0 <?= form_error('harga_jual') ? 'is-invalid' : '' ?>"
+                                       placeholder="0"
+                                       value="<?= set_value('harga_jual') ?>">
+                                <div class="invalid-feedback">
+                                    <?= form_error('harga_jual') ?>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="d-flex justify-content-end gap-3 flex-wrap">
+                        <button type="reset" class="btn btn-outline-secondary px-4">
+                            Reset
+                        </button>
+
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="bi bi-save2 me-2"></i> Simpan Produk
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- ================= TABLE ================= -->
+        <div class="col-12">
+            <?php $this->load->view('product/table_produk', ['list_barang' => $list_barang]); ?>
+        </div>
+
+    </div>
 </div>

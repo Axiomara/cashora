@@ -1,45 +1,93 @@
 <div id="main">
-  <div class="page-heading mb-3">
-    <h3>Detail Transaksi</h3>
-    <p class="text-muted">Informasi lengkap transaksi</p>
+
+  <!-- PAGE HEADING -->
+  <div class="page-heading mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <h3 class="mb-1">Detail Transaksi</h3>
+        <p class="text-muted mb-0">Informasi lengkap transaksi</p>
+      </div>
+
+      <?php if ($status_retur === 'belum'): ?>
+        <span class="badge bg-success px-3 py-2">Belum Diretur</span>
+      <?php elseif ($status_retur === 'sebagian'): ?>
+        <span class="badge bg-warning text-dark px-3 py-2">Retur Sebagian</span>
+      <?php elseif ($status_retur === 'selesai'): ?>
+        <span class="badge bg-danger px-3 py-2">Sudah Diretur</span>
+      <?php endif; ?>
+    </div>
   </div>
 
   <div class="page-content">
-    <div class="row g-3">
+    <div class="row g-4">
 
-      <!-- INFO TRANSAKSI -->
+      <!-- ================= INFO TRANSAKSI ================= -->
       <div class="col-12 col-lg-4">
-        <div class="card shadow-sm border-0">
-          <div class="card-body">
-            <h5 class="mb-3">Info Transaksi</h5>
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body p-4">
 
-            <div class="mb-2">Kode: <b><?= $transaksi->kode_transaksi ?></b></div>
-            <div class="mb-2">Tanggal: <?= date('d-m-Y H:i', strtotime($transaksi->tanggal)) ?></div>
-            <div class="mb-2">Total: Rp<?= number_format($transaksi->total,0,',','.') ?></div>
-            <div class="mb-2">Bayar: Rp<?= number_format($transaksi->bayar,0,',','.') ?></div>
-            <div class="mb-2">Kembali: Rp<?= number_format($transaksi->kembalian,0,',','.') ?></div>
+            <h5 class="mb-4">Informasi Transaksi</h5>
 
-           <a href="<?= base_url('transaksi/go_retur/'.$transaksi->id_transaksi) ?>"
-   class="btn btn-warning w-100 mt-3">
-  <i class="bi bi-arrow-counterclockwise me-1"></i>
-  Proses Retur
-</a>
+            <div class="mb-3">
+              <small class="text-muted">Kode Transaksi</small>
+              <div class="fw-semibold fs-5">
+                <?= $transaksi->kode_transaksi ?>
+              </div>
+            </div>
 
+            <div class="mb-3">
+              <small class="text-muted">Tanggal</small>
+              <div>
+                <?= date('d-m-Y H:i', strtotime($transaksi->tanggal)) ?>
+              </div>
+            </div>
 
+            <div class="mb-3">
+              <small class="text-muted">Total Belanja</small>
+              <div class="fw-semibold">
+                Rp<?= number_format($transaksi->total,0,',','.') ?>
+              </div>
+            </div>
+
+            <?php if ($total_retur > 0): ?>
+              <div class="mb-3">
+                <small class="text-muted">Total Diretur</small>
+                <div class="fw-semibold text-danger">
+                  Rp<?= number_format($total_retur,0,',','.') ?>
+                </div>
+              </div>
+            <?php endif; ?>
+
+            <hr>
+
+            <!-- BUTTON RETUR -->
+            <?php if (!empty($masih_ada_sisa) && $masih_ada_sisa): ?>
+              <a href="<?= base_url('transaksi/go_retur/'.$transaksi->id_transaksi) ?>"
+                 class="btn btn-warning w-100 mt-3">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                Proses Retur
+              </a>
+            <?php else: ?>
+              <button class="btn btn-secondary w-100 mt-3" disabled>
+                <i class="bi bi-check-circle me-1"></i>
+                Semua Barang Sudah Diretur
+              </button>
+            <?php endif; ?>
 
           </div>
         </div>
       </div>
 
-      <!-- DETAIL BARANG -->
+      <!-- ================= DETAIL BARANG ================= -->
       <div class="col-12 col-lg-8">
         <div class="card shadow-sm border-0">
-          <div class="card-body">
-            <h5 class="mb-3">Detail Barang</h5>
+          <div class="card-body p-4">
+
+            <h5 class="mb-4">Detail Barang</h5>
 
             <div class="table-responsive">
-              <table class="table align-middle">
-                <thead class="text-muted">
+              <table class="table align-middle table-hover">
+                <thead class="text-muted small">
                   <tr>
                     <th>Barang</th>
                     <th class="text-end">Harga</th>
@@ -49,17 +97,23 @@
                 </thead>
                 <tbody>
                   <?php foreach ($detail as $d): ?>
-                  <tr>
-                    <td>
-                      <?= $d->nama_barang ?><br>
-                      <small class="text-muted"><?= $d->kode_barang ?></small>
-                    </td>
-                    <td class="text-end">Rp<?= number_format($d->harga,0,',','.') ?></td>
-                    <td class="text-center"><?= $d->qty ?></td>
-                    <td class="text-end fw-semibold">
-                      Rp<?= number_format($d->subtotal,0,',','.') ?>
-                    </td>
-                  </tr>
+                    <tr>
+                      <td>
+                        <div class="fw-semibold"><?= $d->nama_barang ?></div>
+                        <small class="text-muted"><?= $d->kode_barang ?></small>
+                      </td>
+                      <td class="text-end">
+                        Rp<?= number_format($d->harga,0,',','.') ?>
+                      </td>
+                      <td class="text-center">
+                        <span class="badge bg-light text-dark px-3 py-2">
+                          <?= $d->qty ?>
+                        </span>
+                      </td>
+                      <td class="text-end fw-semibold">
+                        Rp<?= number_format($d->subtotal,0,',','.') ?>
+                      </td>
+                    </tr>
                   <?php endforeach; ?>
                 </tbody>
               </table>
@@ -71,23 +125,61 @@
 
     </div>
 
-    <!-- RIWAYAT RETUR -->
+    <!-- ================= RIWAYAT RETUR ================= -->
     <?php if (!empty($retur)): ?>
-    <div class="card shadow-sm border-0 mt-3">
-      <div class="card-body">
-        <h5>Riwayat Retur</h5>
-        <ul class="list-group list-group-flush">
-          <?php foreach ($retur as $r): ?>
-          <li class="list-group-item d-flex justify-content-between">
-            <span><?= $r->kode_retur ?> (<?= date('d-m-Y', strtotime($r->tanggal)) ?>)</span>
-            <span class="fw-semibold">
-              Rp<?= number_format($r->total_retur,0,',','.') ?>
-            </span>
-          </li>
+
+      <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body p-4">
+
+          <h5 class="mb-4">Riwayat Retur</h5>
+
+          <?php 
+          $grouped = [];
+          foreach ($retur as $r) {
+              $grouped[$r->kode_retur]['tanggal'] = $r->tanggal;
+              $grouped[$r->kode_retur]['total']   = $r->total_retur;
+              $grouped[$r->kode_retur]['items'][] = $r;
+          }
+          ?>
+
+          <?php foreach ($grouped as $kode => $dataRetur): ?>
+
+            <div class="border rounded p-3 mb-3">
+
+              <div class="d-flex justify-content-between mb-2">
+                <div>
+                  <div class="fw-semibold"><?= $kode ?></div>
+                  <small class="text-muted">
+                    <?= date('d-m-Y H:i', strtotime($dataRetur['tanggal'])) ?>
+                  </small>
+                </div>
+                <div class="fw-bold text-danger">
+                  Rp<?= number_format($dataRetur['total'],0,',','.') ?>
+                </div>
+              </div>
+
+              <!-- DETAIL BARANG YANG DIRETUR -->
+              <ul class="list-group list-group-flush small">
+                <?php foreach ($dataRetur['items'] as $item): ?>
+                  <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                    <div>
+                      <?= $item->nama_barang ?>
+                      <span class="text-muted">(<?= $item->kode_barang ?>)</span>
+                    </div>
+                    <div class="fw-semibold text-danger">
+                      x<?= $item->qty ?>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+
+            </div>
+
           <?php endforeach; ?>
-        </ul>
+
+        </div>
       </div>
-    </div>
+
     <?php endif; ?>
 
   </div>

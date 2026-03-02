@@ -1,12 +1,25 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+/**
+ * @property CI_Loader $load
+ * @property CI_Input $input
+ * @property CI_Output $output
+ * @property CI_Session $session
+ * @property CI_Pagination $pagination
+ * @property CI_DB_query_builder $db
+ * @property Transaksi_model $Transaksi_model
+ * @property Barang_model $Barang_model
+ * @property Retur_model $Retur_model
+ * @property Pdf $pdf
+ */
 class Transaksi extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
         $this->load->model('Transaksi_model');
-        $this->load->model('Barang_model')  ;
+        $this->load->model('Barang_model');
+        $this->load->model('Retur_model');
     }
 
     public function index() {
@@ -26,9 +39,7 @@ class Transaksi extends CI_Controller {
     }
 
     public function simpan() {
-    // =========================
-    // 1) Anti Double Submit Token
-    // =========================
+
     $tokenForm    = $this->input->post('trx_token', TRUE);
     $tokenSession = $this->session->userdata('trx_token');
 
@@ -40,9 +51,7 @@ class Transaksi extends CI_Controller {
 
     $this->session->unset_userdata('trx_token');
 
-    // =========================
-    // 2) Ambil data dari POST
-    // =========================
+   
     $cart_json = $this->input->post('cart_json', TRUE);
     $bayar     = (int)$this->input->post('bayar', TRUE);
 
@@ -60,9 +69,6 @@ class Transaksi extends CI_Controller {
         return;
     }
 
-    // =========================
-    // 3) Validasi + Hitung total dari DB (AMAN)
-    // =========================
     $total       = 0;
     $detailItems = [];
 
@@ -110,9 +116,6 @@ class Transaksi extends CI_Controller {
         ];
     }
 
-    // =========================
-    // 4) Validasi Bayar
-    // =========================
     if ($bayar < $total) {
         $this->session->set_flashdata('error', 'Uang bayar kurang!');
         redirect('transaksi');
@@ -121,9 +124,6 @@ class Transaksi extends CI_Controller {
 
     $kembalian = $bayar - $total;
 
-    // =========================
-    // 5) Simpan via Model (Transaction DB)
-    // =========================
     $result = $this->Transaksi_model->create_transaksi($detailItems, $total, $bayar, $kembalian);
 
     if (!empty($result['status']) && $result['status'] === true) {
@@ -153,12 +153,7 @@ class Transaksi extends CI_Controller {
             show_404();
         }
 
-        // HTML nota thermal (58mm)
         $html = $this->load->view('transaksi/pdf_nota_58mm', $data, true);
-
-        // Dompdf tidak punya ukuran 58mm langsung, jadi pakai custom paper
-        // width 58mm = 164.4 pt
-        // height dibuat panjang (misalnya 700 pt), nanti otomatis kepanjangannya menyesuaikan isi
         $this->pdf->thermal($html, "NOTA_" . $data['transaksi']->kode_transaksi . ".pdf");
     }
 
@@ -176,7 +171,6 @@ class Transaksi extends CI_Controller {
             $to       = trim((string)$this->input->get('to', TRUE));
             $pageParam = $this->input->get('page', TRUE);
 
-            // ✅ rapihin URL hanya kalau q/from/to kosong dan page juga kosong
             if ($q === '' && $from === '' && $to === '' && ($pageParam === null || $pageParam === '')) {
                 if ($this->input->server('QUERY_STRING')) {
                     redirect('transaksi/riwayat');
@@ -188,9 +182,6 @@ class Transaksi extends CI_Controller {
 
             $totalRows = $this->Transaksi_model->count_riwayat($q, $from, $to);
 
-            // ==========================
-            // PAGINATION CONFIG
-            // ==========================
             $config['base_url'] = base_url('transaksi/riwayat');
             $config['total_rows'] = $totalRows;
             $config['per_page'] = $perPage;
@@ -253,47 +244,119 @@ class Transaksi extends CI_Controller {
             $this->load->view('dashboard/footer');
         }
 
-        public function detail($id_transaksi) {
-            $transaksi = $this->Transaksi_model->get_transaksi($id_transaksi);
-            if (!$transaksi) {
-                show_404();
-            }
+ public function detail($id_transaksi)
+{
+    $this->load->model('Retur_model');
 
-            $detail = $this->Transaksi_model->get_detail($id_transaksi);
-            $retur  = $this->Transaksi_model->get_retur_by_transaksi($id_transaksi);
-
-            $data = [
-                'transaksi' => $transaksi,
-                'detail'    => $detail,
-                'retur'     => $retur
-            ];
-
-            
-            $this->load->view('dashboard/header' );
-            $this->load->view('dashboard/sidebar');
-            $this->load->view('transaksi/detail', $data);
-            $this->load->view('dashboard/footer');
-        }
-
-
-        public function go_retur($id_transaksi) {
-    // validasi transaksi ada
     $transaksi = $this->Transaksi_model->get_by_id($id_transaksi);
+    $detail    = $this->Transaksi_model->get_detail($id_transaksi);
+
     if (!$transaksi) {
         show_404();
     }
 
-    // set session izin retur
+    // ===============================
+    // 1️⃣ Ambil total retur
+    // ===============================
+    $total_retur = $this->Retur_model
+                        ->get_total_retur_by_transaksi($id_transaksi);
+
+    // ===============================
+    // 2️⃣ Ambil sisa qty per barang
+    // ===============================
+    $sisaData = $this->Retur_model
+                     ->get_sisa_qty_by_transaksi($id_transaksi);
+
+    $masih_ada_sisa = false;
+
+    foreach ($sisaData as $row) {
+        if ($row->qty_retur < $row->qty_beli) {
+            $masih_ada_sisa = true;
+            break;
+        }
+    }
+
+
+    if ($total_retur == 0) {
+        $status_retur = 'belum';
+    } elseif (!$masih_ada_sisa) {
+        $status_retur = 'selesai';
+    } else {
+        $status_retur = 'sebagian';
+    }
+
+   
+    $retur = $this->Retur_model
+                  ->get_by_transaksi($id_transaksi);
+
+    $data = [
+        'transaksi'       => $transaksi,
+        'detail'          => $detail,
+        'status_retur'    => $status_retur,
+        'masih_ada_sisa'  => $masih_ada_sisa,
+        'total_retur'     => $total_retur,   
+        'retur'           => $retur         
+    ];
+
+    $this->load->view('dashboard/header');
+    $this->load->view('dashboard/sidebar');
+    $this->load->view('transaksi/detail', $data);
+    $this->load->view('dashboard/footer');
+}
+   
+   public function go_retur($id_transaksi = null)
+{
+    $this->load->model('Transaksi_model');
+    $this->load->model('Retur_model');
+
+    $id_transaksi = (int)$id_transaksi;
+    if ($id_transaksi <= 0) {
+        show_404();
+        return;
+    }
+
+    $transaksi = $this->Transaksi_model->get_by_id($id_transaksi);
+    if (!$transaksi) {
+        show_404();
+        return;
+    }
+
+    $sisaData = $this->Retur_model
+                     ->get_sisa_qty_by_transaksi($id_transaksi);
+    if (empty($sisaData)) {
+        $this->session->set_flashdata(
+            'error',
+            'Data transaksi tidak memiliki detail barang.'
+        );
+        redirect('transaksi/detail/' . $id_transaksi);
+        return;
+    }
+
+    $masih_ada_sisa = false;
+
+    foreach ($sisaData as $row) {
+        $qty_beli  = (int)$row->qty_beli;
+        $qty_retur = (int)$row->qty_retur;
+
+        if ($qty_retur < $qty_beli) {
+            $masih_ada_sisa = true;
+            break;
+        }
+    }
+
+    if (!$masih_ada_sisa) {
+        $this->session->set_flashdata(
+            'error',
+            'Semua barang dalam transaksi ini sudah diretur.'
+        );
+        redirect('transaksi/detail/' . $id_transaksi);
+        return;
+    }
+
     $this->session->set_userdata('allow_retur', $id_transaksi);
 
     redirect('retur/form/' . $id_transaksi);
 }
-
-
-
-
-
-
 }
 
 

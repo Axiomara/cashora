@@ -1,6 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+/**
+ * @property CI_DB_query_builder $db
+ */
+
 class Barang_model extends CI_Model {
 
     private $table = 'barang';
@@ -48,7 +52,6 @@ class Barang_model extends CI_Model {
             'stok'        => (int)($data['stok'] ?? 0),
         ];
 
-        // minimal validation (biar aman walau controller lupa validasi)
         if ($insertData['kode_barang'] === '' || $insertData['nama_barang'] === '') {
             return false;
         }
@@ -56,7 +59,6 @@ class Barang_model extends CI_Model {
         if ($insertData['harga_jual'] < 0) $insertData['harga_jual'] = 0;
         if ($insertData['stok'] < 0) $insertData['stok'] = 0;
 
-        // timestamps manual kalau DB gak otomatis
         $insertData['created_at'] = date('Y-m-d H:i:s');
         $insertData['updated_at'] = date('Y-m-d H:i:s');
 
@@ -73,5 +75,79 @@ class Barang_model extends CI_Model {
         ->row();
     }
 
+        public function get_low_stock($limit = 5) {
+        return $this->db
+            ->where('stok >', 0)
+            ->where('stok <', 5)
+            ->order_by('stok', 'ASC')
+            ->limit($limit)
+            ->get('barang')
+            ->result();
+    }
+
+    public function count_low_stock() {
+        return $this->db
+            ->where('stok >', 0)
+            ->where('stok <', 5)
+            ->count_all_results('barang');
+    }
+
+        public function get_by_kode($kode) {
+        return $this->db->get_where('barang', [
+            'kode_barang' => $kode
+        ])->row();
+    }
+
+    public function get_filtered($keyword = null, $filter = null, $sort = 'id_barang', $order = 'asc') {
+        $this->db->from('barang');
+
+        if (!empty($keyword)) {
+            $this->db->group_start();
+            $this->db->like('kode_barang', $keyword);
+            $this->db->or_like('nama_barang', $keyword);
+            $this->db->group_end();
+        }
+
+        if ($filter === 'low') {
+            $this->db->where('stok <=', 5);
+        }
+
+        if ($filter === 'safe') {
+            $this->db->where('stok >', 5);
+        }
+
+        $this->db->order_by($sort, $order);
+
+        return $this->db->get()->result();
+    }
+
+    public function search_barang($keyword = null, $filter = null, $sort = null, $order = null) {
+        $this->db->from('barang');
+
+        if (!empty($keyword)) {
+            $this->db->group_start();
+            $this->db->like('kode_barang', $keyword);
+            $this->db->or_like('nama_barang', $keyword);
+            $this->db->group_end();
+        }
+
+        if ($filter === 'low') {
+            $this->db->where('stok <=', 5);
+        }
+
+        if ($filter === 'safe') {
+            $this->db->where('stok >', 5);
+        }
+
+        $allowed_sort = ['kode_barang', 'nama_barang', 'stok', 'harga_jual'];
+
+        if (in_array($sort, $allowed_sort)) {
+            $this->db->order_by($sort, $order === 'desc' ? 'DESC' : 'ASC');
+        } else {
+            $this->db->order_by('id_barang', 'DESC');
+        }
+
+        return $this->db->get()->result();
+    }
 
 }

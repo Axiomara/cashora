@@ -95,6 +95,19 @@ class Transaksi_model extends CI_Model {
             ->result();
     }
 
+    public function get_by_transaksi($id_transaksi)
+{
+    return $this->db
+        ->select('r.*, rd.qty, rd.harga, rd.subtotal, b.nama_barang, b.kode_barang')
+        ->from('retur r')
+        ->join('retur_detail rd', 'rd.id_retur = r.id_retur')
+        ->join('barang b', 'b.id_barang = rd.id_barang')
+        ->where('r.id_transaksi', $id_transaksi)
+        ->order_by('r.id_retur', 'DESC')
+        ->get()
+        ->result();
+}
+
     public function get_by_id($id_transaksi)
     {
         return $this->db->select('*')
@@ -145,8 +158,7 @@ class Transaksi_model extends CI_Model {
     ->result();
     }
 
-    public function count_riwayat($q = null, $from = null, $to = null)
-{
+    public function count_riwayat($q = null, $from = null, $to = null) {
     $this->db->from('transaksi');
 
     if (!empty($q)) {
@@ -164,8 +176,7 @@ class Transaksi_model extends CI_Model {
     return $this->db->count_all_results();
 }
 
-public function get_riwayat_paging($q = null, $from = null, $to = null, $limit = 10, $offset = 0)
-{
+    public function get_riwayat_paging($q = null, $from = null, $to = null, $limit = 10, $offset = 0)  {
     $this->db->from('transaksi');
 
     if (!empty($q)) {
