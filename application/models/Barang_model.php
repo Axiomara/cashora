@@ -11,15 +11,15 @@ class Barang_model extends CI_Model {
     private $select_default = 'id_barang, kode_barang, nama_barang, harga_jual, stok, created_at, updated_at';
 
 
-    public function get_all($order = 'DESC')
-    {
-        return $this->db
-            ->select($this->select_default)
-            ->from($this->table)
-            ->order_by('id_barang', $order)
-            ->get()
-            ->result();
-    }
+   public function get_all($order = 'DESC')
+{
+    return $this->db
+        ->select('id_barang, kode_barang, nama_barang, stok, isi_karton, harga_jual')
+        ->from($this->table)
+        ->order_by('id_barang', $order)
+        ->get()
+        ->result();
+}
 
     public function search_ajax($keyword = '') {
     $keyword = trim($keyword);

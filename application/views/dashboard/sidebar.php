@@ -56,6 +56,23 @@
     </a>
 </li>
 
+<!-- SUPPLIER -->
+<li class="sidebar-item <?= ($this->uri->uri_string() == 'supplier') ? 'active' : '' ?>">
+    <a href="<?= site_url('supplier') ?>" class="sidebar-link">
+        <i class="bi bi-truck"></i>
+        <span>Supplier</span>
+    </a>
+</li>
+
+
+<!-- PEMBELIAN -->
+<li class="sidebar-item <?= ($this->uri->uri_string() == 'pembelian') ? 'active' : '' ?>">
+    <a href="<?= site_url('pembelian') ?>" class="sidebar-link">
+        <i class="bi bi-bag-plus"></i>
+        <span>Pembelian</span>
+    </a>
+</li>
+
             
             <li
                 class="sidebar-item  has-sub">
