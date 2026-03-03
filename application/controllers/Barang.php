@@ -39,7 +39,7 @@ public function index()
     $this->load->view('product/input-produk', $data);
     $this->load->view('dashboard/footer');
 }
-    public function simpan()
+ public function simpan()
 {
     $this->_rules_tambah();
 
@@ -54,29 +54,61 @@ public function index()
         return;
     }
 
-    $kode = strtoupper(trim($this->input->post('kode_barang', TRUE)));
+    $kode     = strtoupper(trim($this->input->post('kode_barang', TRUE)));
+    $barcode  = trim($this->input->post('barcode', TRUE));
+    $nama     = trim($this->input->post('nama_barang', TRUE));
+    $harga    = (int) $this->input->post('harga_jual', TRUE);
+    $stok     = (int) $this->input->post('stok', TRUE);
+    $isi      = (int) $this->input->post('isi_karton', TRUE);
 
-    $data = [
-        'kode_barang' => $kode,
-        'nama_barang' => trim($this->input->post('nama_barang', TRUE)),
-        'harga_jual'  => (int) $this->input->post('harga_jual', TRUE),
-        'stok'        => (int) $this->input->post('stok', TRUE),
-    ];
-
-    // Safety guard tambahan
-    $data['harga_jual'] = max(0, $data['harga_jual']);
-    $data['stok']       = max(0, $data['stok']);
-
-    // Cek ulang jika ternyata sudah ada (double protection)
-    $cek = $this->Barang_model->get_by_kode($kode);
-    if ($cek) {
+    // ================= VALIDASI BARCODE WAJIB =================
+    if ($barcode === '' || $barcode === NULL) {
         $this->session->set_flashdata(
             'error_validation',
-            'Kode Barang sudah digunakan. Gunakan kode lain.'
+            'Barcode wajib diisi dan tidak boleh kosong.'
         );
         redirect('barang');
         return;
     }
+
+    // Safety guard angka
+    $harga = max(0, $harga);
+    $stok  = max(0, $stok);
+    $isi   = $isi > 0 ? $isi : 1;
+
+    // ================= CEK KODE UNIK =================
+    if ($this->Barang_model->get_by_kode($kode)) {
+        $this->session->set_flashdata(
+            'error_validation',
+            'Kode Barang sudah digunakan.'
+        );
+        redirect('barang');
+        return;
+    }
+
+    // ================= CEK BARCODE UNIK =================
+    if ($this->Barang_model->get_by_barcode($barcode)) {
+        $this->session->set_flashdata(
+            'error_validation',
+            'Barcode sudah digunakan oleh produk lain.'
+        );
+        redirect('barang');
+        return;
+    }
+
+    // ================= INSERT DATA =================
+    $data = [
+        'kode_barang'         => $kode,
+        'barcode'             => $barcode,
+        'nama_barang'         => $nama,
+        'harga_jual'          => $harga,
+        'stok'                => $stok,
+        'isi_karton'          => $isi,
+        'harga_beli_terakhir' => 0,
+        'supplier_terakhir'   => NULL,
+        'created_at'          => date('Y-m-d H:i:s'),
+        'updated_at'          => date('Y-m-d H:i:s')
+    ];
 
     $insert = $this->Barang_model->insert($data);
 
@@ -136,6 +168,12 @@ public function index()
             'integer'  => 'Stok harus berupa angka bulat.',
             'greater_than_equal_to' => 'Stok tidak boleh kurang dari 0.'
         ]
+    );
+
+        $this->form_validation->set_rules(
+        'barcode',
+        'Barcode',
+        'required|trim'
     );
 }
 

@@ -42,28 +42,39 @@ class Barang_model extends CI_Model {
 
 
     public function insert($data)
-    {
-        if (empty($data)) return false;
+{
+    if (empty($data)) return false;
 
-        $insertData = [
-            'kode_barang' => strtoupper(trim($data['kode_barang'] ?? '')),
-            'nama_barang' => trim($data['nama_barang'] ?? ''),
-            'harga_jual'  => (int)($data['harga_jual'] ?? 0),
-            'stok'        => (int)($data['stok'] ?? 0),
-        ];
+    $insertData = [
+        'kode_barang' => strtoupper(trim($data['kode_barang'] ?? '')),
+        'barcode'     => trim($data['barcode'] ?? ''),
+        'nama_barang' => trim($data['nama_barang'] ?? ''),
+        'harga_jual'  => (int)($data['harga_jual'] ?? 0),
+        'stok'        => (int)($data['stok'] ?? 0),
+        'isi_karton'  => (int)($data['isi_karton'] ?? 1),
+        'harga_beli_terakhir' => (float)($data['harga_beli_terakhir'] ?? 0),
+        'supplier_terakhir'   => $data['supplier_terakhir'] ?? NULL,
+    ];
 
-        if ($insertData['kode_barang'] === '' || $insertData['nama_barang'] === '') {
-            return false;
-        }
-
-        if ($insertData['harga_jual'] < 0) $insertData['harga_jual'] = 0;
-        if ($insertData['stok'] < 0) $insertData['stok'] = 0;
-
-        $insertData['created_at'] = date('Y-m-d H:i:s');
-        $insertData['updated_at'] = date('Y-m-d H:i:s');
-
-        return $this->db->insert($this->table, $insertData);
+    // ================= VALIDASI WAJIB =================
+    if (
+        $insertData['kode_barang'] === '' ||
+        $insertData['nama_barang'] === '' ||
+        $insertData['barcode'] === ''
+    ) {
+        return false;
     }
+
+    // Safety angka
+    if ($insertData['harga_jual'] < 0) $insertData['harga_jual'] = 0;
+    if ($insertData['stok'] < 0) $insertData['stok'] = 0;
+    if ($insertData['isi_karton'] <= 0) $insertData['isi_karton'] = 1;
+
+    $insertData['created_at'] = date('Y-m-d H:i:s');
+    $insertData['updated_at'] = date('Y-m-d H:i:s');
+
+    return $this->db->insert($this->table, $insertData);
+}
 
     public function get_by_id($id_barang) {
     return $this->db
@@ -149,5 +160,13 @@ class Barang_model extends CI_Model {
 
         return $this->db->get()->result();
     }
+
+    public function get_by_barcode($barcode)
+{
+    return $this->db
+        ->where('barcode', $barcode)
+        ->get($this->table)
+        ->row();
+}
 
 }

@@ -95,13 +95,6 @@
 
 <div id="main" class="p-3 p-md-4">
 
-    <!-- MOBILE MENU -->
-    <header class="mb-3 d-xl-none">
-        <a href="#" class="text-dark">
-            <i class="bi bi-justify fs-3"></i>
-        </a>
-    </header>
-
     <!-- PAGE HEADING -->
     <div class="page-heading mb-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -113,7 +106,7 @@
             </div>
 
             <span class="badge badge-modern px-3 py-2 text-uppercase">
-                <i class="bi bi-box-seam me-1"></i> Inventory
+                <i class="bi bi-upc-scan me-1"></i> Inventory
             </span>
         </div>
     </div>
@@ -124,50 +117,28 @@
         <div class="col-12">
             <div class="modern-card p-4 p-md-5">
 
-               <div class="mb-4">
+                <div class="mb-4">
                     <h6 class="fw-bold mb-1 text-dark">Form Input Produk</h6>
                     <small class="text-muted">
                         Pastikan data yang dimasukkan sudah benar sebelum menyimpan
                     </small>
-                </div> 
+                </div>
 
-                <!-- ALERT -->
-               <?php if ($this->session->flashdata('success')) : ?>
-    <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-4 border-0 d-flex align-items-start gap-3 mb-4" role="alert">
+                <!-- ALERT SUCCESS -->
+                <?php if ($this->session->flashdata('success')) : ?>
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-4 mb-4">
+                        <?= $this->session->flashdata('success') ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
 
-        <div class="fs-4 text-success">
-            <i class="bi bi-check-circle-fill"></i>
-        </div>
-
-        <div class="flex-grow-1">
-            <div class="fw-semibold mb-1">Berhasil</div>
-            <div class="small">
-                <?= $this->session->flashdata('success') ?>
-            </div>
-        </div>
-
-        <button type="button" class="btn-close mt-1" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
-
-     <?php if ($this->session->flashdata('error_validation')) : ?>
-    <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-4 border-0 d-flex align-items-start gap-3 mb-4" role="alert">
-
-        <div class="fs-4 text-danger">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-        </div>
-
-        <div class="flex-grow-1">
-            <div class="fw-semibold mb-1">Terjadi Kesalahan</div>
-            <div class="small">
-                <?= $this->session->flashdata('error_validation') ?>
-            </div>
-        </div>
-
-        <button type="button" class="btn-close mt-1" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
+                <!-- ALERT ERROR -->
+                <?php if ($this->session->flashdata('error_validation')) : ?>
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-4 mb-4">
+                        <?= $this->session->flashdata('error_validation') ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
 
                 <form action="<?= base_url('barang/simpan') ?>" method="post" autocomplete="off">
 
@@ -186,6 +157,22 @@
                             </div>
                         </div>
 
+                        <!-- BARCODE -->
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <label class="form-label">Barcode</label>
+                            <input type="text"
+                                   name="barcode"
+                                   class="form-control <?= form_error('barcode') ? 'is-invalid' : '' ?>"
+                                   placeholder="Scan atau input barcode"
+                                   value="<?= set_value('barcode') ?>">
+                            <div class="invalid-feedback">
+                                <?= form_error('barcode') ?>
+                            </div>
+                            <small class="text-muted">
+                                Bisa diisi manual atau menggunakan scanner
+                            </small>
+                        </div>
+
                         <!-- NAMA -->
                         <div class="col-12 col-md-6 col-lg-4">
                             <label class="form-label">Nama Barang</label>
@@ -200,13 +187,12 @@
                         </div>
 
                         <!-- STOK -->
-                        <div class="col-6 col-lg-2">
-                            <label class="form-label">Stok Awal</label>
+                        <div class="col-6 col-lg-1">
+                            <label class="form-label">Stok</label>
                             <input type="number"
                                    name="stok"
                                    min="0"
                                    class="form-control <?= form_error('stok') ? 'is-invalid' : '' ?>"
-                                   placeholder="0"
                                    value="<?= set_value('stok') ?>">
                             <div class="invalid-feedback">
                                 <?= form_error('stok') ?>
@@ -214,7 +200,7 @@
                         </div>
 
                         <!-- HARGA -->
-                        <div class="col-6 col-lg-3">
+                        <div class="col-6 col-lg-2">
                             <label class="form-label">Harga Jual</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0">Rp</span>
@@ -222,7 +208,6 @@
                                        name="harga_jual"
                                        min="0"
                                        class="form-control border-start-0 <?= form_error('harga_jual') ? 'is-invalid' : '' ?>"
-                                       placeholder="0"
                                        value="<?= set_value('harga_jual') ?>">
                                 <div class="invalid-feedback">
                                     <?= form_error('harga_jual') ?>
@@ -255,4 +240,5 @@
         </div>
 
     </div>
+
 </div>
