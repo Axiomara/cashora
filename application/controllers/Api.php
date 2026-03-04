@@ -8,15 +8,26 @@ class Api extends CI_Controller {
         $this->load->model('Barang_model');
     }
 
-    public function cari_produk() {
-        $q = trim($this->input->get('q', TRUE));
+    public function cari_produk()
+{
+    $q = trim($this->input->get('q', TRUE));
 
-        $data = $this->Barang_model->search_ajax($q);
-
-        header('Content-Type: application/json');
-        echo json_encode([
-            'status' => true,
-            'data' => $data
-        ]);
+    if ($q == '') {
+        echo json_encode(['status' => false]);
+        return;
     }
+
+    $this->db->group_start();
+    $this->db->like('kode_barang', $q);
+    $this->db->or_like('nama_barang', $q);
+    $this->db->or_like('barcode', $q);
+    $this->db->group_end();
+
+    $result = $this->db->get('barang')->result();
+
+    echo json_encode([
+        'status' => true,
+        'data'   => $result
+    ]);
+}
 }
