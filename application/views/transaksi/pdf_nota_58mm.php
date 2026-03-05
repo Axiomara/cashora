@@ -6,6 +6,12 @@
   <title>Nota Kasir</title>
 
   <style>
+    /* ukuran kertas Photo L */
+    @page {
+      size: 89mm 127mm;
+      margin: 0;
+    }
+
     body {
       font-family: monospace;
       font-size: 10px;
@@ -14,9 +20,11 @@
       color: #000;
     }
 
+    /* area nota di tengah kertas */
     .nota {
-      width: 58mm;
-      padding: 6px;
+      width: 60mm;
+      margin: auto;
+      padding-top: 8mm;
     }
 
     .center {
@@ -72,6 +80,23 @@
       text-align: right;
       white-space: nowrap;
     }
+
+
+    /* PRINT MODE */
+
+    @media print {
+
+      body {
+        width: 89mm;
+        height: 127mm;
+      }
+
+      .nota {
+        width: 60mm;
+        padding-top: 8mm;
+      }
+
+    }
   </style>
 
 </head>
@@ -119,7 +144,6 @@
 
     </table>
 
-
     <div class="line"></div>
 
 
@@ -150,7 +174,6 @@
       <?php endforeach; ?>
 
     </table>
-
 
     <div class="line"></div>
 
@@ -183,12 +206,11 @@
       <tr>
         <td class="sum-label">Metode</td>
         <td class="sum-value">
-          <?= strtoupper($transaksi->metode_bayar) ?>
+          <?= strtoupper($transaksi->metode_bayar ?? 'CASH') ?>
         </td>
       </tr>
 
     </table>
-
 
     <div class="line"></div>
 
@@ -213,6 +235,13 @@
 
     localStorage.removeItem("kasir_cart");
     localStorage.removeItem("kasir_bayar");
+
+
+    /* auto print */
+
+    window.onload = function() {
+      window.print();
+    }
   </script>
 
 </body>
