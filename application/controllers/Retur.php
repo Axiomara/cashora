@@ -90,9 +90,6 @@ public function form($id_transaksi)
         }
     }
 
-    // ===============================
-    // CEK JIKA SEMUA SUDAH DIRETUR
-    // ===============================
     if (!$masih_ada_sisa) {
         $this->session->set_flashdata(
             'error',
