@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class Supplier_model extends CI_Model
 {
@@ -10,14 +10,54 @@ class Supplier_model extends CI_Model
         parent::__construct();
     }
 
-    // =========================================
-    // GET ALL
-    // =========================================
+
+    public function count_all()
+    {
+        return $this->db->count_all('supplier');
+    }
+
+    public function count_search($keyword)
+    {
+        $this->db->like('nama_supplier', $keyword);
+        return $this->db->count_all_results('supplier');
+    }
+
+    public function get_pagination($limit, $start)
+    {
+        return $this->db
+            ->order_by('id_supplier', 'DESC')
+            ->limit($limit, $start)
+            ->get('supplier')
+            ->result();
+    }
+
+    public function search_pagination($limit, $start, $keyword)
+    {
+        return $this->db
+            ->like('nama_supplier', $keyword)
+            ->order_by('id_supplier', 'DESC')
+            ->limit($limit, $start)
+            ->get('supplier')
+            ->result();
+    }
+
     public function get_all()
     {
         return $this->db
-            ->order_by('nama_supplier', 'ASC')
+            ->order_by('id_supplier', 'DESC')
             ->get($this->table)
+            ->result();
+    }
+
+    // =========================================
+    // GET ALL
+    // =========================================
+    public function get_supplier($limit, $start)
+    {
+        return $this->db
+            ->limit($limit, $start)
+            ->order_by('id_supplier', 'DESC')
+            ->get('supplier')
             ->result();
     }
 
@@ -86,7 +126,8 @@ class Supplier_model extends CI_Model
             ->delete($this->table);
     }
 
-    public function search($keyword) {
+    public function search($keyword)
+    {
         // Validasi awal
         if (!is_string($keyword)) {
             return [];

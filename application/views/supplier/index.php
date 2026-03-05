@@ -23,6 +23,24 @@
     </div>
 
 
+      <?php if ($this->session->flashdata('success')) : ?>
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            <?= $this->session->flashdata('success') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($this->session->flashdata('error')) : ?>
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+            <i class="bi bi-x-circle me-2"></i>
+            <?= $this->session->flashdata('error') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
+
+
     <!-- CARD CONTAINER -->
     <div class="bg-white border rounded-4 shadow-sm overflow-hidden">
 
@@ -101,127 +119,141 @@
         <!-- TABLE -->
         <div class="table-responsive">
 
-            <table class="table align-middle mb-0">
+    <table class="table align-middle mb-0">
 
-                <thead class="bg-light bg-opacity-25">
+        <thead class="bg-light bg-opacity-25">
 
-                    <tr class="text-uppercase small text-muted" style="letter-spacing:.05em;">
-                        <th class="ps-4 py-3 border-0">Supplier</th>
-                        <th class="py-3 border-0">Kontak</th>
-                        <th class="py-3 border-0">Alamat</th>
-                        <th class="py-3 border-0">Keterangan</th>
-                        <th class="text-end pe-4 py-3 border-0">Aksi</th>
-                    </tr>
+            <tr class="text-uppercase small text-muted" style="letter-spacing:.05em;">
+                <th class="ps-4 py-3 border-0">Supplier</th>
+                <th class="py-3 border-0">Kontak</th>
+                <th class="py-3 border-0">Alamat</th>
+                <th class="py-3 border-0">Keterangan</th>
+                <th class="text-end pe-4 py-3 border-0">Aksi</th>
+            </tr>
 
-                </thead>
+        </thead>
 
-                <tbody>
+        <tbody>
 
-                <?php if (!empty($supplier)) : ?>
+        <?php if (!empty($supplier)) : ?>
 
-                    <?php foreach ($supplier as $s) : ?>
+            <?php foreach ($supplier as $s) : ?>
 
-                        <tr class="border-top">
+                <tr class="border-top">
 
-                            <td class="ps-4 py-4 border-0">
+                    <!-- NAMA -->
+                    <td class="ps-4 py-4 border-0">
 
-                                <div class="fw-semibold text-dark">
-                                    <?= htmlspecialchars($s->nama_supplier ?? '-', ENT_QUOTES, 'UTF-8') ?>
-                                </div>
+                        <div class="fw-semibold text-dark">
+                            <?= htmlspecialchars($s->nama_supplier ?? '-', ENT_QUOTES, 'UTF-8') ?>
+                        </div>
 
-                                <small class="text-muted">
-                                    ID-<?= str_pad($s->id_supplier, 4, '0', STR_PAD_LEFT) ?>
-                                </small>
+                        <small class="text-muted">
+                            ID-<?= str_pad($s->id_supplier, 4, '0', STR_PAD_LEFT) ?>
+                        </small>
 
-                            </td>
-
-
-                            <td class="py-4 border-0">
-
-                                <?php if (!empty($s->no_hp)) : ?>
-
-                                    <span class="px-3 py-2 rounded-pill bg-light border small">
-                                        <?= htmlspecialchars($s->no_hp, ENT_QUOTES, 'UTF-8') ?>
-                                    </span>
-
-                                <?php else : ?>
-
-                                    <span class="text-muted small">
-                                        Tidak tersedia
-                                    </span>
-
-                                <?php endif; ?>
-
-                            </td>
+                    </td>
 
 
-                            <td class="py-4 border-0 text-muted small" style="max-width:220px;">
-                                <div class="text-truncate">
-                                    <?= htmlspecialchars($s->alamat ?? '-', ENT_QUOTES, 'UTF-8') ?>
-                                </div>
-                            </td>
+                    <!-- KONTAK -->
+                    <td class="py-4 border-0">
+
+                        <?php if (!empty($s->no_hp)) : ?>
+
+                            <span class="px-3 py-2 rounded-pill bg-light border small">
+                                <?= htmlspecialchars($s->no_hp, ENT_QUOTES, 'UTF-8') ?>
+                            </span>
+
+                        <?php else : ?>
+
+                            <span class="text-muted small">
+                                Tidak tersedia
+                            </span>
+
+                        <?php endif; ?>
+
+                    </td>
 
 
-                            <td class="py-4 border-0 text-muted small" style="max-width:200px;">
-                                <div class="text-truncate">
-                                    <?= htmlspecialchars($s->keterangan ?? '-', ENT_QUOTES, 'UTF-8') ?>
-                                </div>
-                            </td>
+                    <!-- ALAMAT -->
+                    <td class="py-4 border-0 text-muted small" style="max-width:220px;">
+                        <div class="text-truncate">
+                            <?= htmlspecialchars($s->alamat ?? '-', ENT_QUOTES, 'UTF-8') ?>
+                        </div>
+                    </td>
 
 
-                            <td class="py-4 pe-4 border-0 text-end">
+                    <!-- KETERANGAN -->
+                    <td class="py-4 border-0 text-muted small" style="max-width:200px;">
+                        <div class="text-truncate">
+                            <?= htmlspecialchars($s->keterangan ?? '-', ENT_QUOTES, 'UTF-8') ?>
+                        </div>
+                    </td>
 
-                                <div class="d-inline-flex gap-3">
 
-                                    <a href="<?= base_url('supplier/edit/'.$s->id_supplier) ?>"
-                                       class="text-decoration-none fw-semibold text-primary small">
-                                        Edit
-                                    </a>
+                    <!-- AKSI -->
+                    <td class="py-4 pe-4 border-0 text-end">
 
-                                    <a href="<?= base_url('supplier/hapus/'.$s->id_supplier) ?>"
-                                       onclick="return confirm('Yakin hapus supplier ini?')"
-                                       class="text-decoration-none fw-semibold text-danger small">
-                                        Hapus
-                                    </a>
+                        <div class="d-inline-flex gap-3">
 
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
-                <?php else : ?>
-
-                    <tr>
-
-                        <td colspan="5" class="text-center py-5 border-0">
-
-                            <div class="fw-semibold mb-2">
-                                Belum ada supplier
-                            </div>
-
-                            <div class="text-muted small mb-4">
-                                Tambahkan supplier untuk mulai mencatat pembelian
-                            </div>
-
-                            <a href="<?= base_url('supplier/tambah') ?>"
-                               class="btn btn-dark rounded-pill px-4">
-                                Tambah Supplier
+                            <a href="<?= base_url('supplier/edit/'.$s->id_supplier) ?>"
+                               class="text-decoration-none fw-semibold text-primary small">
+                                Edit
                             </a>
 
-                        </td>
+                            <a href="<?= base_url('supplier/hapus/'.$s->id_supplier) ?>"
+                               onclick="return confirm('Yakin hapus supplier ini?')"
+                               class="text-decoration-none fw-semibold text-danger small">
+                                Hapus
+                            </a>
 
-                    </tr>
+                        </div>
 
-                <?php endif; ?>
+                    </td>
 
-                </tbody>
+                </tr>
 
-            </table>
+            <?php endforeach; ?>
 
-        </div>
+        <?php else : ?>
+
+            <!-- DATA KOSONG -->
+            <tr>
+
+                <td colspan="5" class="text-center py-5 border-0">
+
+                    <div class="fw-semibold mb-2">
+                        Belum ada supplier
+                    </div>
+
+                    <div class="text-muted small mb-4">
+                        Tambahkan supplier untuk mulai mencatat pembelian
+                    </div>
+
+                    <a href="<?= base_url('supplier/tambah') ?>"
+                       class="btn btn-dark rounded-pill px-4">
+                        Tambah Supplier
+                    </a>
+
+                </td>
+
+            </tr>
+
+        <?php endif; ?>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<!-- PAGINATION -->
+<?php if (!empty($pagination)) : ?>
+<div class="px-4 py-3 border-top bg-light bg-opacity-25 d-flex justify-content-end">
+    <?= $pagination ?>
+</div>
+<?php endif; ?>
 
     </div>
 

@@ -57,6 +57,7 @@ $route['transaksi/struk/(:num)'] = 'transaksi/struk/$1';
 $route['api/cari-produk'] = 'api/cari_produk';
 $route['transaksi/nota-pdf/(:num)'] = 'transaksi/nota_pdf/$1';
 $route['barang/ajax_list'] = 'barang/ajax_list';
+$route['supplier/(:num)'] = 'supplier/index/$1';
 
 $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
