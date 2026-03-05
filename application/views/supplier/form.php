@@ -1,4 +1,11 @@
-<div id="main" class="p-3 p-md-5">
+<div id="main" class="p-3 p-md-4">
+
+    <!-- MOBILE SIDEBAR BUTTON -->
+    <header class="mb-3 d-xl-none">
+        <a href="#" class="burger-btn d-block text-dark">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
 
     <!-- PAGE HEADER -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
@@ -16,10 +23,10 @@
     </div>
 
 
-    <!-- MAIN FORM CONTAINER -->
+    <!-- FORM CONTAINER -->
     <div class="bg-white border rounded-4 shadow-sm">
 
-        <!-- TOP STRIP -->
+        <!-- HEADER -->
         <div class="px-4 px-md-5 py-4 border-bottom">
             <h6 class="fw-semibold mb-1">Informasi Supplier</h6>
             <small class="text-muted">
@@ -30,7 +37,7 @@
 
         <div class="p-4 p-md-5">
 
-            <!-- SUCCESS MESSAGE -->
+            <!-- SUCCESS -->
             <?php if ($this->session->flashdata('success')) : ?>
                 <div class="alert alert-success alert-dismissible fade show">
                     <?= $this->session->flashdata('success') ?>
@@ -38,7 +45,7 @@
                 </div>
             <?php endif; ?>
 
-            <!-- ERROR MESSAGE -->
+            <!-- ERROR -->
             <?php if (validation_errors()) : ?>
                 <div class="alert alert-danger alert-dismissible fade show">
                     <?= validation_errors() ?>
@@ -51,33 +58,37 @@
 
                 <div class="row g-4">
 
-                    <!-- NAMA SUPPLIER -->
+                    <!-- NAMA -->
                     <div class="col-12 col-md-6">
                         <label class="form-label fw-semibold">
                             Nama Supplier
                             <span class="text-danger">*</span>
                         </label>
+
                         <input type="text"
                                name="nama_supplier"
-                               class="form-control form-control-lg"
+                               class="form-control"
                                placeholder="Contoh: PT Sumber Jaya"
                                value="<?= set_value('nama_supplier') ?>"
                                required>
+
                         <small class="text-muted">
                             Nama perusahaan atau toko supplier
                         </small>
                     </div>
 
-                    <!-- NO HP -->
+                    <!-- TELEPON -->
                     <div class="col-12 col-md-6">
                         <label class="form-label fw-semibold">
                             Nomor Telepon
                         </label>
+
                         <input type="text"
                                name="no_hp"
-                               class="form-control form-control-lg"
+                               class="form-control"
                                placeholder="08xxxxxxxxxx"
                                value="<?= set_value('no_hp') ?>">
+
                         <small class="text-muted">
                             Nomor yang dapat dihubungi
                         </small>
@@ -88,9 +99,10 @@
                         <label class="form-label fw-semibold">
                             Alamat
                         </label>
+
                         <textarea name="alamat"
                                   rows="3"
-                                  class="form-control form-control-lg"
+                                  class="form-control"
                                   placeholder="Masukkan alamat lengkap supplier"><?= set_value('alamat') ?></textarea>
                     </div>
 
@@ -99,9 +111,10 @@
                         <label class="form-label fw-semibold">
                             Keterangan Tambahan
                         </label>
+
                         <input type="text"
                                name="keterangan"
-                               class="form-control form-control-lg"
+                               class="form-control"
                                placeholder="Informasi tambahan (opsional)"
                                value="<?= set_value('keterangan') ?>">
                     </div>
@@ -109,7 +122,7 @@
                 </div>
 
 
-                <!-- ACTION SECTION -->
+                <!-- ACTION -->
                 <div class="mt-5 pt-4 border-top">
 
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
@@ -118,7 +131,7 @@
                             Pastikan data sudah benar sebelum menyimpan.
                         </small>
 
-                        <div class="d-flex flex-column flex-sm-row gap-2">
+                        <div class="d-flex gap-2">
 
                             <a href="<?= base_url('supplier') ?>" 
                                class="btn btn-light border px-4">

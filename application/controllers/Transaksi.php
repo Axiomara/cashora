@@ -38,8 +38,8 @@ class Transaksi extends CI_Controller {
         $this->load->view('dashboard/footer');
     }
 
-    public function simpan() {
-
+    public function simpan()
+{
     $tokenForm    = $this->input->post('trx_token', TRUE);
     $tokenSession = $this->session->userdata('trx_token');
 
@@ -51,9 +51,13 @@ class Transaksi extends CI_Controller {
 
     $this->session->unset_userdata('trx_token');
 
-   
-    $cart_json = $this->input->post('cart_json', TRUE);
-    $bayar     = (int)$this->input->post('bayar', TRUE);
+    $cart_json     = $this->input->post('cart_json', TRUE);
+    $bayar         = (int)$this->input->post('bayar', TRUE);
+    $metode_bayar  = $this->input->post('metode_bayar', TRUE);
+
+    if (!$metode_bayar) {
+        $metode_bayar = 'cash';
+    }
 
     if (empty($cart_json)) {
         $this->session->set_flashdata('error', 'Keranjang masih kosong!');
@@ -73,13 +77,12 @@ class Transaksi extends CI_Controller {
     $detailItems = [];
 
     foreach ($cart as $item) {
-        $id_barang = (int)($item['id_barang'] ?? 0);
 
-        $qtyRaw = $item['qty'] ?? 0;
-        $qty    = (int)$qtyRaw;
+        $id_barang = isset($item['id_barang']) ? (int)$item['id_barang'] : 0;
+        $qty       = isset($item['qty']) ? (int)$item['qty'] : 0;
 
         if ($id_barang <= 0 || $qty <= 0) {
-            $this->session->set_flashdata('error', 'Item keranjang tidak valid (Qty harus > 0).');
+            $this->session->set_flashdata('error', 'Item keranjang tidak valid.');
             redirect('transaksi');
             return;
         }
@@ -107,12 +110,10 @@ class Transaksi extends CI_Controller {
         $total += $subtotal;
 
         $detailItems[] = [
-            'id_barang'   => (int)$barang->id_barang,
-            'qty'         => $qty,
-            'harga'       => $harga,
-            'subtotal'    => $subtotal,
-            'kode_barang' => $barang->kode_barang,
-            'nama_barang' => $barang->nama_barang,
+            'id_barang' => $barang->id_barang,
+            'qty'       => $qty,
+            'harga'     => $harga,
+            'subtotal'  => $subtotal
         ];
     }
 
@@ -124,18 +125,25 @@ class Transaksi extends CI_Controller {
 
     $kembalian = $bayar - $total;
 
-    $result = $this->Transaksi_model->create_transaksi($detailItems, $total, $bayar, $kembalian);
+    $result = $this->Transaksi_model->create_transaksi(
+        $detailItems,
+        $total,
+        $bayar,
+        $kembalian,
+        $metode_bayar
+    );
 
     if (!empty($result['status']) && $result['status'] === true) {
+
         redirect('transaksi/sukses/' . $result['id_transaksi']);
         return;
     }
 
+    $msg = isset($result['message']) ? $result['message'] : 'Gagal menyimpan transaksi.';
 
-    $msg = $result['message'] ?? 'Gagal menyimpan transaksi.';
     $this->session->set_flashdata('error', $msg);
+
     redirect('transaksi');
-    return;
 }
 
 
@@ -356,6 +364,31 @@ class Transaksi extends CI_Controller {
     $this->session->set_userdata('allow_retur', $id_transaksi);
 
     redirect('retur/form/' . $id_transaksi);
+}
+
+public function cari_barcode()
+{
+    $barcode = trim($this->input->post('barcode'));
+
+    $barang = $this->db
+        ->where('barcode', $barcode)
+        ->get('barang')
+        ->row();
+
+    if ($barang) {
+
+        echo json_encode([
+            "status" => "ok",
+            "barang" => $barang
+        ]);
+
+    } else {
+
+        echo json_encode([
+            "status" => "error"
+        ]);
+
+    }
 }
 }
 

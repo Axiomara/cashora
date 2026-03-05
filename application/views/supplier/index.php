@@ -1,5 +1,12 @@
 <div id="main" class="p-3 p-md-4">
 
+    <!-- MOBILE SIDEBAR BUTTON -->
+    <header class="mb-3 d-xl-none">
+        <a href="#" class="burger-btn d-block text-dark">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+
     <!-- PAGE HEADER -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
@@ -27,35 +34,43 @@
                 <!-- LEFT INFO -->
                 <div class="col-12 col-md">
                     <h6 class="fw-semibold mb-2">Daftar Supplier</h6>
+
                     <div class="d-flex align-items-center gap-2 flex-wrap">
+
                         <span class="badge bg-light text-dark border px-3 py-2">
                             <?= isset($supplier) ? count($supplier) : 0 ?> Supplier
                         </span>
 
                         <?php if ($this->input->get('keyword')) : ?>
                             <span class="badge bg-dark bg-opacity-10 text-dark border px-3 py-2">
-                                Pencarian: 
+                                Pencarian:
                                 <?= htmlspecialchars($this->input->get('keyword'), ENT_QUOTES, 'UTF-8') ?>
                             </span>
                         <?php endif; ?>
+
                     </div>
                 </div>
 
-                <!-- RIGHT FILTER + SEARCH -->
+                <!-- FILTER + SEARCH -->
                 <div class="col-12 col-md-auto">
+
                     <form method="get" action="<?= base_url('supplier') ?>" 
                           class="d-flex flex-column flex-md-row gap-2">
 
                         <select name="filter" class="form-select rounded-pill">
+
                             <option value="">Semua</option>
+
                             <option value="ada_hp"
                                 <?= $this->input->get('filter') == 'ada_hp' ? 'selected' : '' ?>>
                                 Ada No HP
                             </option>
+
                             <option value="tanpa_hp"
                                 <?= $this->input->get('filter') == 'tanpa_hp' ? 'selected' : '' ?>>
                                 Tanpa No HP
                             </option>
+
                         </select>
 
                         <input type="text"
@@ -75,17 +90,21 @@
                         </a>
 
                     </form>
+
                 </div>
 
             </div>
+
         </div>
 
 
         <!-- TABLE -->
         <div class="table-responsive">
+
             <table class="table align-middle mb-0">
 
                 <thead class="bg-light bg-opacity-25">
+
                     <tr class="text-uppercase small text-muted" style="letter-spacing:.05em;">
                         <th class="ps-4 py-3 border-0">Supplier</th>
                         <th class="py-3 border-0">Kontak</th>
@@ -93,51 +112,65 @@
                         <th class="py-3 border-0">Keterangan</th>
                         <th class="text-end pe-4 py-3 border-0">Aksi</th>
                     </tr>
+
                 </thead>
 
                 <tbody>
 
                 <?php if (!empty($supplier)) : ?>
+
                     <?php foreach ($supplier as $s) : ?>
+
                         <tr class="border-top">
 
-                            <!-- SUPPLIER -->
                             <td class="ps-4 py-4 border-0">
+
                                 <div class="fw-semibold text-dark">
                                     <?= htmlspecialchars($s->nama_supplier ?? '-', ENT_QUOTES, 'UTF-8') ?>
                                 </div>
+
                                 <small class="text-muted">
                                     ID-<?= str_pad($s->id_supplier, 4, '0', STR_PAD_LEFT) ?>
                                 </small>
+
                             </td>
 
-                            <!-- KONTAK -->
+
                             <td class="py-4 border-0">
+
                                 <?php if (!empty($s->no_hp)) : ?>
+
                                     <span class="px-3 py-2 rounded-pill bg-light border small">
                                         <?= htmlspecialchars($s->no_hp, ENT_QUOTES, 'UTF-8') ?>
                                     </span>
+
                                 <?php else : ?>
-                                    <span class="text-muted small">Tidak tersedia</span>
+
+                                    <span class="text-muted small">
+                                        Tidak tersedia
+                                    </span>
+
                                 <?php endif; ?>
+
                             </td>
 
-                            <!-- ALAMAT -->
+
                             <td class="py-4 border-0 text-muted small" style="max-width:220px;">
                                 <div class="text-truncate">
                                     <?= htmlspecialchars($s->alamat ?? '-', ENT_QUOTES, 'UTF-8') ?>
                                 </div>
                             </td>
 
-                            <!-- KETERANGAN -->
+
                             <td class="py-4 border-0 text-muted small" style="max-width:200px;">
                                 <div class="text-truncate">
                                     <?= htmlspecialchars($s->keterangan ?? '-', ENT_QUOTES, 'UTF-8') ?>
                                 </div>
                             </td>
 
-                            <!-- ACTION -->
+
                             <td class="py-4 pe-4 border-0 text-end">
+
                                 <div class="d-inline-flex gap-3">
 
                                     <a href="<?= base_url('supplier/edit/'.$s->id_supplier) ?>"
@@ -152,16 +185,23 @@
                                     </a>
 
                                 </div>
+
                             </td>
 
                         </tr>
+
                     <?php endforeach; ?>
+
                 <?php else : ?>
 
-                    <!-- EMPTY STATE -->
                     <tr>
+
                         <td colspan="5" class="text-center py-5 border-0">
-                            <div class="fw-semibold mb-2">Belum ada supplier</div>
+
+                            <div class="fw-semibold mb-2">
+                                Belum ada supplier
+                            </div>
+
                             <div class="text-muted small mb-4">
                                 Tambahkan supplier untuk mulai mencatat pembelian
                             </div>
@@ -170,7 +210,9 @@
                                class="btn btn-dark rounded-pill px-4">
                                 Tambah Supplier
                             </a>
+
                         </td>
+
                     </tr>
 
                 <?php endif; ?>
@@ -178,6 +220,7 @@
                 </tbody>
 
             </table>
+
         </div>
 
     </div>

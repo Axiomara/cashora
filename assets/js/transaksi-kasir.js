@@ -310,8 +310,102 @@ document.addEventListener("keydown", function (e) {
 });
 
 // Init
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
+
     loadLocal();
     renderCart();
-    barangSearch.focus();
+
+    if (typeof barangSearch !== "undefined" && barangSearch) {
+
+        barangSearch.focus();
+
+        barangSearch.addEventListener("keydown", function (e) {
+
+            if (e.key === "Enter") {
+
+                e.preventDefault();
+
+                const value = this.value.trim();
+
+                if (value === "") return;
+
+                // jika angka semua dianggap barcode
+                if (/^\d+$/.test(value)) {
+
+                    scanBarcode(value);
+
+                }
+
+            }
+
+        });
+
+    }
+
 });
+
+function scanBarcode(barcode) {
+
+    fetch(BASE_URL + "transaksi/cari_barcode", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+
+        body: "barcode=" + encodeURIComponent(barcode)
+
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data && data.status === "ok" && data.barang) {
+
+            const barang = data.barang;
+
+            if (idBarangSelected) idBarangSelected.value = barang.id_barang;
+            if (stokSelected) stokSelected.value = barang.stok;
+            if (hargaSelected) hargaSelected.value = barang.harga_jual;
+            if (kodeSelected) kodeSelected.value = barang.kode_barang;
+            if (namaSelected) namaSelected.value = barang.nama_barang;
+
+            if (hargaInput) {
+                hargaInput.value = formatRupiah(barang.harga_jual);
+            }
+
+            if (qtyInput) {
+                qtyInput.value = 1;
+            }
+
+            const btnTambah = document.getElementById("btnTambah");
+
+            if (btnTambah) {
+                btnTambah.click();
+            }
+
+            // kosongkan input dan fokus lagi
+            barangSearch.value = "";
+            barangSearch.focus();
+
+        } else {
+
+            alert("Barcode tidak ditemukan");
+
+            barangSearch.value = "";
+            barangSearch.focus();
+
+        }
+
+    })
+    .catch(err => {
+
+        console.error("Error:", err);
+
+        alert("Gagal mengambil data barang");
+
+        barangSearch.focus();
+
+    });
+
+}

@@ -1,12 +1,10 @@
 <style>
-/* ================= GLOBAL ================= */
 #main {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: #f6f8fb;
     min-height: 100vh;
 }
 
-/* ================= CARD ================= */
 .modern-card {
     background: #ffffff;
     border-radius: 1.25rem;
@@ -14,7 +12,6 @@
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
 }
 
-/* ================= HEADING ================= */
 .page-heading h4 {
     font-weight: 700;
     color: #0f172a;
@@ -24,7 +21,6 @@
     color: #64748b;
 }
 
-/* ================= FORM ================= */
 .form-label {
     font-weight: 600;
     font-size: 0.85rem;
@@ -48,27 +44,22 @@
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
 }
 
-/* ================= BUTTON ================= */
 .btn-primary {
     background: #4f46e5;
     border: none;
     border-radius: .75rem;
     font-weight: 600;
     padding: .65rem 1.6rem;
-    transition: all .25s ease;
 }
 
 .btn-primary:hover {
     background: #4338ca;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
 }
 
 .btn-outline-secondary {
     border-radius: .75rem;
 }
 
-/* ================= BADGE ================= */
 .badge-modern {
     background: #eef2ff;
     color: #4f46e5;
@@ -78,14 +69,12 @@
     font-weight: 600;
 }
 
-/* ================= ALERT ================= */
 .alert {
     border-radius: .75rem;
     border: none;
     font-size: .85rem;
 }
 
-/* ================= DIVIDER ================= */
 .divider {
     height: 1px;
     background: #f1f5f9;
@@ -94,6 +83,13 @@
 </style>
 
 <div id="main" class="p-3 p-md-4">
+
+    <!-- MOBILE SIDEBAR BUTTON -->
+    <header class="mb-3 d-xl-none">
+        <a href="#" class="burger-btn d-block">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
 
     <!-- PAGE HEADING -->
     <div class="page-heading mb-4">
@@ -113,7 +109,7 @@
 
     <div class="row g-4">
 
-        <!-- ================= FORM CARD ================= -->
+        <!-- FORM -->
         <div class="col-12">
             <div class="modern-card p-4 p-md-5">
 
@@ -124,7 +120,6 @@
                     </small>
                 </div>
 
-                <!-- ALERT SUCCESS -->
                 <?php if ($this->session->flashdata('success')) : ?>
                     <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-4 mb-4">
                         <?= $this->session->flashdata('success') ?>
@@ -132,7 +127,6 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- ALERT ERROR -->
                 <?php if ($this->session->flashdata('error_validation')) : ?>
                     <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-4 mb-4">
                         <?= $this->session->flashdata('error_validation') ?>
@@ -144,7 +138,6 @@
 
                     <div class="row g-4">
 
-                        <!-- KODE -->
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label">Kode Barang</label>
                             <input type="text"
@@ -152,12 +145,8 @@
                                    class="form-control <?= form_error('kode_barang') ? 'is-invalid' : '' ?>"
                                    placeholder="BRG001"
                                    value="<?= set_value('kode_barang') ?>">
-                            <div class="invalid-feedback">
-                                <?= form_error('kode_barang') ?>
-                            </div>
                         </div>
 
-                        <!-- BARCODE -->
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label">Barcode</label>
                             <input type="text"
@@ -165,15 +154,11 @@
                                    class="form-control <?= form_error('barcode') ? 'is-invalid' : '' ?>"
                                    placeholder="Scan atau input barcode"
                                    value="<?= set_value('barcode') ?>">
-                            <div class="invalid-feedback">
-                                <?= form_error('barcode') ?>
-                            </div>
                             <small class="text-muted">
                                 Bisa diisi manual atau menggunakan scanner
                             </small>
                         </div>
 
-                        <!-- NAMA -->
                         <div class="col-12 col-md-6 col-lg-4">
                             <label class="form-label">Nama Barang</label>
                             <input type="text"
@@ -181,25 +166,17 @@
                                    class="form-control <?= form_error('nama_barang') ? 'is-invalid' : '' ?>"
                                    placeholder="Nama produk"
                                    value="<?= set_value('nama_barang') ?>">
-                            <div class="invalid-feedback">
-                                <?= form_error('nama_barang') ?>
-                            </div>
                         </div>
 
-                        <!-- STOK -->
                         <div class="col-6 col-lg-1">
                             <label class="form-label">Stok</label>
                             <input type="number"
                                    name="stok"
                                    min="0"
-                                   class="form-control <?= form_error('stok') ? 'is-invalid' : '' ?>"
+                                   class="form-control"
                                    value="<?= set_value('stok') ?>">
-                            <div class="invalid-feedback">
-                                <?= form_error('stok') ?>
-                            </div>
                         </div>
 
-                        <!-- HARGA -->
                         <div class="col-6 col-lg-2">
                             <label class="form-label">Harga Jual</label>
                             <div class="input-group">
@@ -207,11 +184,8 @@
                                 <input type="number"
                                        name="harga_jual"
                                        min="0"
-                                       class="form-control border-start-0 <?= form_error('harga_jual') ? 'is-invalid' : '' ?>"
+                                       class="form-control border-start-0"
                                        value="<?= set_value('harga_jual') ?>">
-                                <div class="invalid-feedback">
-                                    <?= form_error('harga_jual') ?>
-                                </div>
                             </div>
                         </div>
 
@@ -234,7 +208,7 @@
             </div>
         </div>
 
-        <!-- ================= TABLE ================= -->
+        <!-- TABLE -->
         <div class="col-12">
             <?php $this->load->view('product/table_produk', ['list_barang' => $list_barang]); ?>
         </div>

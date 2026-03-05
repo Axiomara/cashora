@@ -1,5 +1,12 @@
 <div id="main" class="p-3 p-md-4">
 
+  <!-- MOBILE SIDEBAR BUTTON -->
+  <header class="mb-3 d-xl-none">
+    <a href="#" class="burger-btn d-block text-dark">
+      <i class="bi bi-justify fs-3"></i>
+    </a>
+  </header>
+
   <style>
     .table td, .table th {
       vertical-align: middle;
@@ -15,7 +22,6 @@
       opacity: .6;
     }
 
-    /* Spacing halus antara form & riwayat */
     .section-gap {
       padding-top: 20px;
     }
@@ -45,6 +51,7 @@
 
             <!-- Supplier & Tanggal -->
             <div class="row mb-4">
+
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Supplier</label>
                 <select name="id_supplier" class="form-select" required>
@@ -65,6 +72,7 @@
                        value="<?= date('Y-m-d\TH:i') ?>"
                        required>
               </div>
+
             </div>
 
             <hr>
@@ -73,6 +81,7 @@
 
             <div class="table-responsive">
               <table class="table table-bordered align-middle">
+
                 <thead class="table-light">
                   <tr>
                     <th>Barang</th>
@@ -86,7 +95,9 @@
                 </thead>
 
                 <tbody id="tablePembelian">
+
                   <tr>
+
                     <td>
                       <select name="items[0][id_barang]" class="form-select barangSelect" required>
                         <option value="">-- Pilih Barang --</option>
@@ -145,8 +156,11 @@
                         ×
                       </button>
                     </td>
+
                   </tr>
+
                 </tbody>
+
               </table>
             </div>
 
@@ -160,8 +174,10 @@
         </div>
       </div>
 
+
       <!-- RIGHT SIDE -->
       <div class="col-lg-4">
+
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
 
@@ -169,6 +185,7 @@
 
             <div class="mb-3">
               <label class="form-label">Total Pembelian</label>
+
               <input type="text"
                      id="totalPembelian"
                      class="form-control form-control-lg fw-bold text-end"
@@ -185,31 +202,36 @@
 
           </div>
         </div>
+
       </div>
 
     </div>
 
   </form>
 
-  <!-- COMPONENT RIWAYAT -->
+
+  <!-- RIWAYAT PEMBELIAN -->
   <div class="section-gap">
     <?php $this->load->view('pembelian/index'); ?>
   </div>
 
 </div>
 
+
 <script>
 
 let rowIndex = 1;
 
-function formatRupiah(number) {
+function formatRupiah(number){
   number = parseInt(number) || 0;
   return "Rp" + number.toLocaleString("id-ID");
 }
 
-function hitungRow(row) {
+function hitungRow(row){
+
   const qty = parseInt(row.querySelector(".qty")?.value) || 0;
   const harga = parseInt(row.querySelector(".harga")?.value) || 0;
+
   const subtotal = qty * harga;
 
   row.querySelector(".subtotal").value = formatRupiah(subtotal);
@@ -217,130 +239,132 @@ function hitungRow(row) {
   return subtotal;
 }
 
-function hitungSemua() {
+function hitungSemua(){
+
   let total = 0;
 
-  document.querySelectorAll("#tablePembelian tr").forEach(row => {
-    total += hitungRow(row);
+  document.querySelectorAll("#tablePembelian tr").forEach(row=>{
+      total += hitungRow(row);
   });
 
   document.getElementById("totalPembelian").value = formatRupiah(total);
   document.getElementById("totalInput").value = total;
 }
 
-function tambahRow() {
+function tambahRow(){
 
   const table = document.getElementById("tablePembelian");
 
   const row = document.createElement("tr");
 
   row.innerHTML = `
-    <td>
-      <select name="items[${rowIndex}][id_barang]" class="form-select barangSelect" required>
-        <option value="">-- Pilih Barang --</option>
-        <?php foreach ($barang as $b): ?>
-          <option value="<?= $b->id_barang ?>"
-                  data-isi="<?= $b->isi_karton ?? 1 ?>">
-            <?= $b->kode_barang ?> - <?= $b->nama_barang ?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </td>
+  <td>
+    <select name="items[${rowIndex}][id_barang]" class="form-select barangSelect" required>
+      <option value="">-- Pilih Barang --</option>
+      <?php foreach ($barang as $b): ?>
+        <option value="<?= $b->id_barang ?>" data-isi="<?= $b->isi_karton ?? 1 ?>">
+          <?= $b->kode_barang ?> - <?= $b->nama_barang ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </td>
 
-    <td>
-      <input type="number"
-             name="items[${rowIndex}][qty_input]"
-             class="form-control qty text-center"
-             min="1"
-             value="1">
-    </td>
+  <td>
+    <input type="number"
+           name="items[${rowIndex}][qty_input]"
+           class="form-control qty text-center"
+           min="1"
+           value="1">
+  </td>
 
-    <td>
-      <select name="items[${rowIndex}][satuan]" class="form-select satuan">
-        <option value="pcs">PCS</option>
-        <option value="karton">KARTON</option>
-      </select>
-    </td>
+  <td>
+    <select name="items[${rowIndex}][satuan]" class="form-select satuan">
+      <option value="pcs">PCS</option>
+      <option value="karton">KARTON</option>
+    </select>
+  </td>
 
-    <td>
-      <input type="number"
-             name="items[${rowIndex}][isi_karton]"
-             class="form-control isi_karton text-center"
-             min="1"
-             value="1"
-             disabled>
-    </td>
+  <td>
+    <input type="number"
+           name="items[${rowIndex}][isi_karton]"
+           class="form-control isi_karton text-center"
+           min="1"
+           value="1"
+           disabled>
+  </td>
 
-    <td>
-      <input type="number"
-             name="items[${rowIndex}][harga_input]"
-             class="form-control harga text-end"
-             min="0"
-             value="0">
-    </td>
+  <td>
+    <input type="number"
+           name="items[${rowIndex}][harga_input]"
+           class="form-control harga text-end"
+           min="0"
+           value="0">
+  </td>
 
-    <td>
-      <input type="text"
-             class="form-control subtotal text-end"
-             readonly
-             value="Rp0">
-    </td>
+  <td>
+    <input type="text"
+           class="form-control subtotal text-end"
+           readonly
+           value="Rp0">
+  </td>
 
-    <td class="text-center">
-      <button type="button"
-              class="btn btn-sm btn-danger"
-              onclick="hapusRow(this)">
-        ×
-      </button>
-    </td>
+  <td class="text-center">
+    <button type="button"
+            class="btn btn-sm btn-danger"
+            onclick="hapusRow(this)">
+      ×
+    </button>
+  </td>
   `;
 
   table.appendChild(row);
   rowIndex++;
+
+  hitungSemua();
 }
 
-function hapusRow(btn) {
+function hapusRow(btn){
   btn.closest("tr").remove();
   hitungSemua();
 }
 
-document.getElementById("tablePembelian").addEventListener("input", function(e) {
-  if (e.target.classList.contains("qty") ||
-      e.target.classList.contains("harga")) {
+document.getElementById("tablePembelian").addEventListener("input",function(e){
+
+  if(e.target.classList.contains("qty") || e.target.classList.contains("harga")){
     hitungSemua();
   }
+
 });
 
-document.getElementById("tablePembelian").addEventListener("change", function(e) {
+document.getElementById("tablePembelian").addEventListener("change",function(e){
 
   const row = e.target.closest("tr");
 
-  if (e.target.classList.contains("satuan")) {
+  if(e.target.classList.contains("satuan")){
 
-    const inputIsi = row.querySelector(".isi_karton");
+    const isiInput = row.querySelector(".isi_karton");
 
-    if (e.target.value === "karton") {
-      inputIsi.disabled = false;
-    } else {
-      inputIsi.disabled = true;
-      inputIsi.value = 1;
+    if(e.target.value === "karton"){
+      isiInput.disabled = false;
+    }else{
+      isiInput.disabled = true;
+      isiInput.value = 1;
     }
+
   }
 
-  if (e.target.classList.contains("barangSelect")) {
+  if(e.target.classList.contains("barangSelect")){
 
     const selected = e.target.options[e.target.selectedIndex];
     const isi = selected.getAttribute("data-isi") || 1;
 
-    const inputIsi = row.querySelector(".isi_karton");
-    if (inputIsi) {
-      inputIsi.value = isi;
-    }
+    const isiInput = row.querySelector(".isi_karton");
+    isiInput.value = isi;
   }
 
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded",function(){
   hitungSemua();
 });
 
