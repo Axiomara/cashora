@@ -59,6 +59,6 @@ $route['transaksi/nota-pdf/(:num)'] = 'transaksi/nota_pdf/$1';
 $route['barang/ajax_list'] = 'barang/ajax_list';
 $route['supplier/(:num)'] = 'supplier/index/$1';
 
-$route['default_controller'] = 'welcome';
+$route['default_controller'] = 'dashboard';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

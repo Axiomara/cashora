@@ -21,7 +21,8 @@ class Transaksi_model extends CI_Model {
     }
 
     // create transaksi + detail + update stok (transaction-safe)
-    public function create_transaksi($items, $total, $bayar, $kembalian, $metode_bayar) {
+    public function create_transaksi($items, $total, $bayar, $kembalian, $metode_bayar, $tipe = 'penjualan')
+{
     $this->db->trans_begin();
 
     try {
@@ -44,29 +45,73 @@ class Transaksi_model extends CI_Model {
 
         foreach ($items as $it) {
 
+            $id_barang = (int)$it['id_barang'];
+            $qty       = (int)$it['qty'];
+            $harga     = (int)$it['harga'];
+            $subtotal  = (int)$it['subtotal'];
+
+            $barang = $this->db
+                ->where('id_barang', $id_barang)
+                ->get('barang')
+                ->row();
+
+            if (!$barang) {
+                throw new Exception("Barang tidak ditemukan");
+            }
+
+            $stok_sebelum = (int)$barang->stok;
+
+
+            // ======================
+            // HITUNG STOK SESUDAH
+            // ======================
+
+            if ($tipe === 'retur') {
+                $stok_sesudah = $stok_sebelum + $qty;
+                $qty_log = $qty;
+            } else {
+                $stok_sesudah = $stok_sebelum - $qty;
+                $qty_log = -$qty;
+            }
+
+
             // ======================
             // INSERT DETAIL
             // ======================
 
             $dataDetail = [
                 'id_transaksi' => $id_transaksi,
-                'id_barang'    => (int)$it['id_barang'],
-                'qty'          => (int)$it['qty'],
-                'harga'        => (int)$it['harga'],
-                'subtotal'     => (int)$it['subtotal'],
+                'id_barang'    => $id_barang,
+                'qty'          => $qty,
+                'harga'        => $harga,
+                'subtotal'     => $subtotal
             ];
 
             $this->db->insert($this->table_detail, $dataDetail);
 
 
             // ======================
-            // UPDATE STOK BARANG
+            // UPDATE STOK
             // ======================
 
-            $this->db->set('stok', 'stok - ' . (int)$it['qty'], false);
-            $this->db->where('id_barang', (int)$it['id_barang']);
+            $this->db->set('stok', $stok_sesudah);
+            $this->db->where('id_barang', $id_barang);
             $this->db->update('barang');
 
+
+            // ======================
+            // SIMPAN STOK LOG
+            // ======================
+
+            $this->db->insert('stok_log', [
+                'id_barang'     => $id_barang,
+                'tipe'          => $tipe,
+                'qty'           => $qty_log,
+                'stok_sebelum'  => $stok_sebelum,
+                'stok_sesudah'  => $stok_sesudah,
+                'referensi'     => $kode_transaksi,
+                'created_at'    => date('Y-m-d H:i:s')
+            ]);
         }
 
 
@@ -78,9 +123,7 @@ class Transaksi_model extends CI_Model {
                 'status'  => false,
                 'message' => 'Gagal menyimpan transaksi!'
             ];
-
         }
-
 
         $this->db->trans_commit();
 
@@ -88,8 +131,8 @@ class Transaksi_model extends CI_Model {
             'status' => true,
             'id_transaksi' => $id_transaksi
         ];
-
     }
+
     catch (Exception $e) {
 
         $this->db->trans_rollback();
@@ -98,7 +141,6 @@ class Transaksi_model extends CI_Model {
             'status'  => false,
             'message' => 'Error: ' . $e->getMessage()
         ];
-
     }
 }
 
