@@ -8,7 +8,6 @@ class Dashboard extends CI_Controller {
         parent::__construct();
         $this->load->model('Dashboard_model');
     }
-
     public function index()
     {
         $list_stok_menipis = $this->Dashboard_model->get_stok_menipis();
