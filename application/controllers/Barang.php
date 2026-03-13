@@ -8,6 +8,7 @@ class Barang extends CI_Controller {
         parent::__construct();
         $this->load->model('Barang_model');
         $this->load->library('form_validation');
+        $this->load->model('Audit_log_model');
     }
 
 public function index()
@@ -39,6 +40,7 @@ public function index()
     $this->load->view('product/input-produk', $data);
     $this->load->view('dashboard/footer');
 }
+
  public function simpan()
 {
     $this->_rules_tambah();
@@ -113,11 +115,22 @@ public function index()
     $insert = $this->Barang_model->insert($data);
 
     if ($insert) {
+
+        // ================= AUDIT LOG =================
+        $this->Audit_log_model->log(
+            'Tambah Barang',
+            'barang',
+            $insert,
+            'Menambahkan barang: ' . $nama . ' (' . $kode . ')'
+        );
+
         $this->session->set_flashdata(
             'success',
             'Barang berhasil ditambahkan.'
         );
+
     } else {
+
         $this->session->set_flashdata(
             'error_validation',
             'Terjadi kesalahan saat menyimpan data.'

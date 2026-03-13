@@ -20,6 +20,7 @@ class Transaksi extends CI_Controller {
         $this->load->model('Transaksi_model');
         $this->load->model('Barang_model');
         $this->load->model('Retur_model');
+        $this->load->model('Audit_log_model');
     }
 
     public function index() {

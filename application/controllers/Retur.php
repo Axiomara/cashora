@@ -17,6 +17,7 @@ class Retur extends CI_Controller {
         parent::__construct();
         $this->load->model('Retur_model');
         $this->load->model('Transaksi_model');
+        $this->load->model('Audit_log_model');
     }
 public function form($id_transaksi)
 {

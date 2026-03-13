@@ -7,6 +7,7 @@ class Dashboard extends CI_Controller {
     {
         parent::__construct();
         $this->load->model('Dashboard_model');
+           $this->load->model('Audit_log_model');
     }
     public function index()
     {
