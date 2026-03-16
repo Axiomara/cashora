@@ -18,11 +18,10 @@ public function index()
     $sort    = $this->input->get('sort', true);
     $order   = $this->input->get('order', true);
 
-    // whitelist field supaya aman
     $allowedSort = ['kode_barang','nama_barang','stok','harga_jual'];
 
     if (!in_array($sort, $allowedSort)) {
-        $sort = 'id_barang'; // default sorting
+        $sort = 'id_barang'; 
     }
 
     $order = ($order === 'desc') ? 'desc' : 'asc';
