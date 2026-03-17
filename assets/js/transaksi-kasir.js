@@ -1,11 +1,3 @@
-/**
- * Logika Transaksi Kasir
- */
-
-// Konfigurasi Dasar
-// Jika BASE_URL tidak didefinisikan di HTML, pastikan path API sesuai
-const BASE_URL = window.location.origin + "/"; 
-
 let cart = [];
 const LS_CART = "kasir_cart";
 const LS_BAYAR = "kasir_bayar";
@@ -84,39 +76,88 @@ barangSearch.addEventListener("input", function () {
         return;
     }
 
-    typingTimer = setTimeout(async () => {
-        try {
-            const res = await fetch(BASE_URL + "api/cari-produk?q=" + encodeURIComponent(q));
-            const json = await res.json();
+typingTimer = setTimeout(async () => {
+    try {
 
-            if (!json.status) { hideResult(); return; }
+        // =========================
+        // PAKAI BASE_URL DARI PHP (WAJIB)
+        // =========================
+        const base = BASE_URL; // langsung pakai
 
-            const data = json.data || [];
-            if (data.length === 0) {
-                resultProduk.innerHTML = `<div class="list-group-item text-muted">Produk tidak ditemukan</div>`;
-                showResult();
-                return;
-            }
+        const url = base + "api/cari-produk?q=" + encodeURIComponent(q);
 
-            let html = "";
-            data.forEach(p => {
-                html += `
-                <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                  onclick="pilihProduk(${p.id_barang}, '${p.kode_barang}', '${p.nama_barang}', ${p.harga_jual}, ${p.stok})">
-                  <div>
+        console.log("BASE_URL:", base);
+        console.log("FETCH URL:", url);
+
+        const res = await fetch(url);
+
+        // =========================
+        // HANDLE ERROR HTTP
+        // =========================
+        if (!res.ok) {
+            console.error("HTTP ERROR:", res.status);
+            hideResult();
+            return;
+        }
+
+        const json = await res.json();
+
+        // =========================
+        // VALIDASI RESPONSE
+        // =========================
+        if (!json.status || !Array.isArray(json.data)) {
+            hideResult();
+            return;
+        }
+
+        const data = json.data;
+
+        if (data.length === 0) {
+            resultProduk.innerHTML = `
+                <div class="list-group-item text-muted">
+                    Produk tidak ditemukan
+                </div>`;
+            showResult();
+            return;
+        }
+
+        // =========================
+        // RENDER DATA
+        // =========================
+        let html = "";
+
+        data.forEach(p => {
+
+            const nama = (p.nama_barang || '').replace(/'/g, "\\'");
+            const kode = (p.kode_barang || '').replace(/'/g, "\\'");
+
+            html += `
+            <button type="button"
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                onclick="pilihProduk(${p.id_barang}, '${kode}', '${nama}', ${p.harga_jual}, ${p.stok})">
+
+                <div>
                     <div class="fw-semibold">${p.kode_barang} - ${p.nama_barang}</div>
                     <small class="text-muted">Stok: ${p.stok}</small>
-                  </div>
-                  <span class="badge bg-light text-dark">${formatRupiah(p.harga_jual)}</span>
-                </button>`;
-            });
-            resultProduk.innerHTML = html;
-            showResult();
-        } catch (err) {
-            console.error(err);
-            hideResult();
-        }
-    }, 250);
+                </div>
+
+                <span class="badge bg-light text-dark">
+                    ${formatRupiah(p.harga_jual)}
+                </span>
+
+            </button>`;
+        });
+
+        resultProduk.innerHTML = html;
+        showResult();
+
+    } catch (err) {
+
+        console.error("FETCH ERROR:", err);
+        hideResult();
+
+    }
+}, 250);
 });
 
 // Pilih Produk
@@ -344,18 +385,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+const soundSuccess = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+const soundError   = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
+
 function scanBarcode(barcode) {
 
     fetch(BASE_URL + "transaksi/cari_barcode", {
-
         method: "POST",
-
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
         },
-
         body: "barcode=" + encodeURIComponent(barcode)
-
     })
     .then(res => res.json())
     .then(data => {
@@ -364,29 +404,57 @@ function scanBarcode(barcode) {
 
             const barang = data.barang;
 
-            if (idBarangSelected) idBarangSelected.value = barang.id_barang;
-            if (stokSelected) stokSelected.value = barang.stok;
-            if (hargaSelected) hargaSelected.value = barang.harga_jual;
-            if (kodeSelected) kodeSelected.value = barang.kode_barang;
-            if (namaSelected) namaSelected.value = barang.nama_barang;
+            const id_barang = barang.id_barang;
+            const stok = parseInt(barang.stok || 0);
+            const harga = parseInt(barang.harga_jual || 0);
+            const qty = 1;
 
-            if (hargaInput) {
-                hargaInput.value = formatRupiah(barang.harga_jual);
+            // =========================
+            // CEK SUDAH ADA DI CART?
+            // =========================
+            const existingIndex = cart.findIndex(x => x.id_barang == id_barang);
+
+            if (existingIndex !== -1) {
+
+                const newQty = cart[existingIndex].qty + 1;
+
+                if (newQty > stok) {
+                    alert("Stok tidak cukup!");
+                    return;
+                }
+
+                cart[existingIndex].qty = newQty;
+                cart[existingIndex].subtotal = newQty * harga;
+
+            } else {
+
+                cart.push({
+                    id_barang: id_barang,
+                    kode_barang: barang.kode_barang,
+                    nama_barang: barang.nama_barang,
+                    harga: harga,
+                    stok: stok,
+                    qty: qty,
+                    subtotal: harga * qty
+                });
+
             }
 
-            if (qtyInput) {
-                qtyInput.value = 1;
-            }
+            // =========================
+            // UPDATE UI
+            // =========================
+            renderCart();
 
-            const btnTambah = document.getElementById("btnTambah");
-
-            if (btnTambah) {
-                btnTambah.click();
-            }
-
-            // kosongkan input dan fokus lagi
+            // =========================
+            // RESET INPUT
+            // =========================
             barangSearch.value = "";
             barangSearch.focus();
+
+            // =========================
+            // OPTIONAL: BUNYI BEEP 🔊
+            // =========================
+            new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3").play();
 
         } else {
 
@@ -407,5 +475,4 @@ function scanBarcode(barcode) {
         barangSearch.focus();
 
     });
-
 }

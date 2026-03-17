@@ -1,5 +1,11 @@
+# ==========================
+# SYSTEM FILES
+# ==========================
 .DS_Store
 
+# ==========================
+# CI3 CACHE & LOG
+# ==========================
 application/cache/*
 !application/cache/index.html
 
@@ -8,25 +14,52 @@ application/logs/*
 
 !application/*/.htaccess
 
+# ==========================
+# DEPENDENCY
+# ==========================
+/vendor/
 composer.lock
+
+# ==========================
+# DATABASE TEST
+# ==========================
 tests/mocks/database/ci_test.sqlite
 
+# ==========================
+# USER GUIDE BUILD
+# ==========================
 user_guide_src/build/*
 user_guide_src/cilexer/build/*
 user_guide_src/cilexer/dist/*
 user_guide_src/cilexer/pycilexer.egg-info/*
-/vendor/
 
-# IDE Files
-#-------------------------
+# ==========================
+# IDE / EDITOR
+# ==========================
 /nbproject/
 .idea/*
 
-## Sublime Text cache files
+# Sublime
 *.tmlanguage.cache
 *.tmPreferences.cache
 *.stTheme.cache
 *.sublime-workspace
 *.sublime-project
+
+# ==========================
+# TEST OUTPUT
+# ==========================
 /tests/tests/
 /tests/results/
+
+# ==========================
+# SOUND FILE (KASIR)
+# ==========================
+assets/sound/*
+!assets/sound/.gitkeep
+
+# ==========================
+# OPTIONAL (UPLOAD / TEMP)
+# ==========================
+# assets/uploads/*
+# tmp/*

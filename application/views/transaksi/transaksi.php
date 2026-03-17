@@ -138,6 +138,16 @@
 
               </div>
 
+              <div class="mt-3">
+
+  <button type="button" class="btn btn-outline-dark w-100" id="btnScan">
+    <i class="bi bi-camera me-1"></i> Scan Barcode (Webcam)
+  </button>
+
+  <div id="reader" style="width:100%; margin-top:10px; display:none;"></div>
+
+</div>
+
 
               <div class="alert alert-light border mt-3 mb-0 small">
 
@@ -327,3 +337,222 @@
   </div>
 
 </div>
+
+
+<script>
+(() => {
+
+// ==========================
+// CONFIG
+// ==========================
+const BASE_URL = "<?= base_url() ?>";
+
+// ==========================
+// AUDIO LOCAL
+// ==========================
+const soundSuccess = new Audio(BASE_URL + "assets/sound/beep-success.mp3");
+const soundError   = new Audio(BASE_URL + "assets/sound/beep-error.mp3");
+
+soundSuccess.preload = "auto";
+soundError.preload   = "auto";
+
+// unlock audio (WAJIB di browser modern)
+document.addEventListener("click", function unlockAudio() {
+
+    soundSuccess.play().then(() => {
+        soundSuccess.pause();
+        soundSuccess.currentTime = 0;
+    }).catch(()=>{});
+
+    soundError.play().then(() => {
+        soundError.pause();
+        soundError.currentTime = 0;
+    }).catch(()=>{});
+
+    document.removeEventListener("click", unlockAudio);
+
+});
+
+
+// ==========================
+// SCANNER STATE
+// ==========================
+let scannerActive = false;
+let html5QrCode = null;
+let lastScan = 0;
+
+const btnScan = document.getElementById("btnScan");
+const reader  = document.getElementById("reader");
+
+if (!btnScan || !reader) {
+    console.error("Element scanner tidak ditemukan");
+    return;
+}
+
+
+// ==========================
+// START SCANNER
+// ==========================
+async function startScanner() {
+
+    if (scannerActive) return;
+
+    try {
+
+        html5QrCode = new Html5Qrcode("reader");
+
+        const devices = await Html5Qrcode.getCameras();
+
+        if (!devices || devices.length === 0) {
+            alert("Kamera tidak ditemukan");
+
+            soundError.currentTime = 0;
+            soundError.play().catch(()=>{});
+
+            return;
+        }
+
+        let cameraId = devices[0].id;
+
+        // pilih kamera terbaik
+        devices.forEach(device => {
+            const label = (device.label || "").toLowerCase();
+
+            if (
+                label.includes("back") ||
+                label.includes("rear") ||
+                label.includes("droidcam")
+            ) {
+                cameraId = device.id;
+            }
+        });
+
+        await html5QrCode.start(
+            cameraId,
+            {
+                fps: 15, // 🔥 lebih cepat
+
+                // 🔥 box besar & cocok barcode
+                qrbox: (w, h) => {
+                    const min = Math.min(w, h);
+                    const width = Math.floor(min * 0.8);
+                    return {
+                        width: width,
+                        height: Math.floor(width * 0.4)
+                    };
+                },
+
+                aspectRatio: 1.5,
+
+                // 🔥 fokus barcode
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E
+                ],
+
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
+                }
+
+            },
+            (decodedText) => {
+
+                const now = Date.now();
+
+                // =========================
+                // ANTI DOUBLE SCAN
+                // =========================
+                if (now - lastScan < 600) return;
+                lastScan = now;
+
+                console.log("SCAN:", decodedText);
+
+                // =========================
+                // MASUK KE CART
+                // =========================
+                if (typeof scanBarcode === "function") {
+
+                    scanBarcode(decodedText);
+
+                    // 🔊 SUCCESS SOUND
+                    soundSuccess.currentTime = 0;
+                    soundSuccess.play().catch(()=>{});
+
+                } else {
+
+                    // 🔴 ERROR SOUND
+                    soundError.currentTime = 0;
+                    soundError.play().catch(()=>{});
+                }
+
+                // =========================
+                // EFEK VISUAL
+                // =========================
+                reader.style.border = "3px solid lime";
+                setTimeout(() => {
+                    reader.style.border = "none";
+                }, 150);
+
+            },
+            () => {}
+        );
+
+        scannerActive = true;
+
+    } catch (err) {
+
+        console.error("Start scanner error:", err);
+
+        soundError.currentTime = 0;
+        soundError.play().catch(()=>{});
+
+        alert("Tidak bisa membuka kamera.\nGunakan HTTPS atau izinkan kamera.");
+
+        reader.style.display = "none";
+        scannerActive = false;
+    }
+}
+
+
+// ==========================
+// STOP SCANNER
+// ==========================
+async function stopScanner() {
+
+    if (!html5QrCode || !scannerActive) return;
+
+    try {
+        await html5QrCode.stop();
+        await html5QrCode.clear();
+    } catch (err) {
+        console.error("Stop error:", err);
+    } finally {
+        html5QrCode = null;
+        scannerActive = false;
+    }
+}
+
+
+// ==========================
+// BUTTON TOGGLE
+// ==========================
+btnScan.addEventListener("click", async function() {
+
+    if (!scannerActive) {
+
+        reader.style.display = "block";
+        startScanner();
+
+    } else {
+
+        await stopScanner();
+        reader.style.display = "none";
+    }
+
+});
+
+})();
+</script>
