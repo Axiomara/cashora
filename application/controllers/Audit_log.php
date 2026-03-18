@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
  * @property CI_Loader $load
@@ -10,7 +10,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @property CI_Pagination $pagination
  */
 
-class Audit_log extends CI_Controller {
+class Audit_log extends CI_Controller
+{
 
     public function __construct()
     {
@@ -28,11 +29,6 @@ class Audit_log extends CI_Controller {
         $pageParam = $this->input->get('page', TRUE);
 
         $perPage = 20;
-
-        // =========================
-        // COUNT DATA
-        // =========================
-
         $this->db->from('audit_log');
 
         if ($q !== '') {
@@ -108,7 +104,7 @@ class Audit_log extends CI_Controller {
 
         $this->db->select('audit_log.*, users.username');
         $this->db->from('audit_log');
-        $this->db->join('users','users.id = audit_log.user_id','left');
+        $this->db->join('users', 'users.id = audit_log.user_id', 'left');
 
         if ($q !== '') {
             $this->db->group_start();
@@ -127,8 +123,8 @@ class Audit_log extends CI_Controller {
         }
 
         $logs = $this->db
-            ->order_by('audit_log.created_at','DESC')
-            ->limit($perPage,$offset)
+            ->order_by('audit_log.created_at', 'DESC')
+            ->limit($perPage, $offset)
             ->get()
             ->result();
 
@@ -157,7 +153,5 @@ class Audit_log extends CI_Controller {
         $this->load->view('dashboard/sidebar');
         $this->load->view('audit_log/index', $data);
         $this->load->view('dashboard/footer');
-
     }
-
 }
