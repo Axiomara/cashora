@@ -1,5 +1,4 @@
-<style>
-    .kpi-icon {
+<style>/    .kpi-icon {
   width: 48px;
   height: 48px;
   border-radius: 16px;
@@ -334,6 +333,22 @@
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span class="text-muted">Jam</span>
                 <span class="fw-semibold"><?= date('H:i') ?></span>
+              </li>
+              <li class="d-flex justify-content-between pt-2">
+                <span class="text-muted">Mode</span>
+                <span class="badge bg-success">Online</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+  </div>
+
+  <footer></footer>
+/span>
               </li>
               <li class="d-flex justify-content-between pt-2">
                 <span class="text-muted">Mode</span>
