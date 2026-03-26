@@ -1,92 +1,96 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
  * @property CI_DB_query_builder $db
  */
 
-class Barang_model extends CI_Model {
+class Barang_model extends CI_Model
+{
 
     private $table = 'barang';
     private $select_default = 'id_barang, kode_barang, nama_barang, harga_jual, stok, created_at, updated_at';
 
 
-   public function get_all($order = 'DESC')
-{
-    return $this->db
-        ->select('id_barang, kode_barang, nama_barang, stok, isi_karton, harga_jual')
-        ->from($this->table)
-        ->order_by('id_barang', $order)
-        ->get()
-        ->result();
-}
-
-    public function search_ajax($keyword = '') {
-    $keyword = trim($keyword);
-
-    $this->db->select('id_barang, kode_barang, nama_barang, harga_jual, stok');
-    $this->db->from($this->table);
-
-    if ($keyword !== '') {
-        $this->db->group_start();
-        $this->db->like('kode_barang', $keyword);
-        $this->db->or_like('nama_barang', $keyword);
-        $this->db->group_end();
+    public function get_all($order = 'DESC')
+    {
+        return $this->db
+            ->select('id_barang, kode_barang, nama_barang, stok, isi_karton, harga_jual')
+            ->from($this->table)
+            ->order_by('id_barang', $order)
+            ->get()
+            ->result();
     }
 
-    $this->db->order_by('nama_barang', 'ASC');
-    $this->db->limit(10);
+    public function search_ajax($keyword = '')
+    {
+        $keyword = trim($keyword);
 
-    return $this->db->get()->result_array();
+        $this->db->select('id_barang, kode_barang, nama_barang, harga_jual, stok');
+        $this->db->from($this->table);
+
+        if ($keyword !== '') {
+            $this->db->group_start();
+            $this->db->like('kode_barang', $keyword);
+            $this->db->or_like('nama_barang', $keyword);
+            $this->db->group_end();
+        }
+
+        $this->db->order_by('nama_barang', 'ASC');
+        $this->db->limit(10);
+
+        return $this->db->get()->result_array();
     }
 
 
     public function insert($data)
-{
-    if (empty($data)) return false;
+    {
+        if (empty($data)) return false;
 
-    $insertData = [
-        'kode_barang' => strtoupper(trim($data['kode_barang'] ?? '')),
-        'barcode'     => trim($data['barcode'] ?? ''),
-        'nama_barang' => trim($data['nama_barang'] ?? ''),
-        'harga_jual'  => (int)($data['harga_jual'] ?? 0),
-        'stok'        => (int)($data['stok'] ?? 0),
-        'isi_karton'  => (int)($data['isi_karton'] ?? 1),
-        'harga_beli_terakhir' => (float)($data['harga_beli_terakhir'] ?? 0),
-        'supplier_terakhir'   => $data['supplier_terakhir'] ?? NULL,
-    ];
+        $insertData = [
+            'kode_barang' => strtoupper(trim($data['kode_barang'] ?? '')),
+            'barcode'     => trim($data['barcode'] ?? ''),
+            'nama_barang' => trim($data['nama_barang'] ?? ''),
+            'harga_jual'  => (int)($data['harga_jual'] ?? 0),
+            'stok'        => (int)($data['stok'] ?? 0),
+            'isi_karton'  => (int)($data['isi_karton'] ?? 1),
+            'harga_beli_terakhir' => (float)($data['harga_beli_terakhir'] ?? 0),
+            'supplier_terakhir'   => $data['supplier_terakhir'] ?? NULL,
+        ];
 
-    // ================= VALIDASI WAJIB =================
-    if (
-        $insertData['kode_barang'] === '' ||
-        $insertData['nama_barang'] === '' ||
-        $insertData['barcode'] === ''
-    ) {
-        return false;
+        // ================= VALIDASI WAJIB =================
+        if (
+            $insertData['kode_barang'] === '' ||
+            $insertData['nama_barang'] === '' ||
+            $insertData['barcode'] === ''
+        ) {
+            return false;
+        }
+
+        // Safety angka
+        if ($insertData['harga_jual'] < 0) $insertData['harga_jual'] = 0;
+        if ($insertData['stok'] < 0) $insertData['stok'] = 0;
+        if ($insertData['isi_karton'] <= 0) $insertData['isi_karton'] = 1;
+
+        $insertData['created_at'] = date('Y-m-d H:i:s');
+        $insertData['updated_at'] = date('Y-m-d H:i:s');
+
+        return $this->db->insert($this->table, $insertData);
     }
 
-    // Safety angka
-    if ($insertData['harga_jual'] < 0) $insertData['harga_jual'] = 0;
-    if ($insertData['stok'] < 0) $insertData['stok'] = 0;
-    if ($insertData['isi_karton'] <= 0) $insertData['isi_karton'] = 1;
-
-    $insertData['created_at'] = date('Y-m-d H:i:s');
-    $insertData['updated_at'] = date('Y-m-d H:i:s');
-
-    return $this->db->insert($this->table, $insertData);
-}
-
-    public function get_by_id($id_barang) {
-    return $this->db
-        ->select('id_barang, kode_barang, nama_barang, harga_jual, stok')
-        ->from('barang')
-        ->where('id_barang', (int)$id_barang)
-        ->limit(1)
-        ->get()
-        ->row();
+    public function get_by_id($id_barang)
+    {
+        return $this->db
+            ->select('id_barang, kode_barang, nama_barang, harga_jual, stok')
+            ->from('barang')
+            ->where('id_barang', (int)$id_barang)
+            ->limit(1)
+            ->get()
+            ->row();
     }
 
-        public function get_low_stock($limit = 5) {
+    public function get_low_stock($limit = 5)
+    {
         return $this->db
             ->where('stok >', 0)
             ->where('stok <', 5)
@@ -96,20 +100,23 @@ class Barang_model extends CI_Model {
             ->result();
     }
 
-    public function count_low_stock() {
+    public function count_low_stock()
+    {
         return $this->db
             ->where('stok >', 0)
             ->where('stok <', 5)
             ->count_all_results('barang');
     }
 
-        public function get_by_kode($kode) {
+    public function get_by_kode($kode)
+    {
         return $this->db->get_where('barang', [
             'kode_barang' => $kode
         ])->row();
     }
 
-    public function get_filtered($keyword = null, $filter = null, $sort = 'id_barang', $order = 'asc') {
+    public function get_filtered($keyword = null, $filter = null, $sort = 'id_barang', $order = 'asc')
+    {
         $this->db->from('barang');
 
         if (!empty($keyword)) {
@@ -132,7 +139,8 @@ class Barang_model extends CI_Model {
         return $this->db->get()->result();
     }
 
-    public function search_barang($keyword = null, $filter = null, $sort = null, $order = null) {
+    public function search_barang($keyword = null, $filter = null, $sort = null, $order = null)
+    {
         $this->db->from('barang');
 
         if (!empty($keyword)) {
@@ -162,11 +170,33 @@ class Barang_model extends CI_Model {
     }
 
     public function get_by_barcode($barcode)
-{
-    return $this->db
-        ->where('barcode', $barcode)
-        ->get($this->table)
-        ->row();
-}
+    {
+        return $this->db
+            ->where('barcode', $barcode)
+            ->get($this->table)
+            ->row();
+    }
+    public function get_last_kode()
+    {
+        $this->db->select('kode_barang');
+        $this->db->like('kode_barang', 'BRG', 'after');
+        $this->db->order_by('kode_barang', 'DESC');
+        $this->db->limit(1);
 
+        return $this->db->get('barang')->row();
+    }
+
+    public function generate_kode()
+    {
+        $last = $this->get_last_kode();
+
+        if ($last) {
+            $num = (int) substr($last->kode_barang, 3); // ambil angka
+            $num++;
+        } else {
+            $num = 1;
+        }
+
+        return 'BRG' . str_pad($num, 3, '0', STR_PAD_LEFT);
+    }
 }

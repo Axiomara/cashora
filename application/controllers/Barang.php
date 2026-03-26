@@ -34,6 +34,7 @@ class Barang extends CI_Controller
         $data['filter']  = $filter;
         $data['sort']    = $sort;
         $data['order']   = $order;
+        $data['kode_auto'] = $this->Barang_model->generate_kode();
 
         $this->load->view('dashboard/header');
         $this->load->view('dashboard/sidebar');
@@ -56,11 +57,12 @@ class Barang extends CI_Controller
             return;
         }
 
-        $kode     = strtoupper(trim($this->input->post('kode_barang', TRUE)));
+        $kode = $this->Barang_model->generate_kode();
         $barcode  = trim($this->input->post('barcode', TRUE));
         $nama     = trim($this->input->post('nama_barang', TRUE));
         $harga    = (int) $this->input->post('harga_jual', TRUE);
-        $stok     = (int) $this->input->post('stok', TRUE);
+        $stok_input = $this->input->post('stok', TRUE);
+        $stok = ($stok_input === '' || $stok_input === NULL) ? 0 : (int)$stok_input;
         $isi      = (int) $this->input->post('isi_karton', TRUE);
 
         // ================= VALIDASI BARCODE WAJIB =================
@@ -168,17 +170,6 @@ class Barang extends CI_Controller
                 'required' => 'Harga Jual wajib diisi.',
                 'numeric'  => 'Harga Jual harus berupa angka.',
                 'greater_than_equal_to' => 'Harga tidak boleh kurang dari 0.'
-            ]
-        );
-
-        $this->form_validation->set_rules(
-            'stok',
-            'Stok',
-            'required|integer|greater_than_equal_to[0]',
-            [
-                'required' => 'Stok wajib diisi.',
-                'integer'  => 'Stok harus berupa angka bulat.',
-                'greater_than_equal_to' => 'Stok tidak boleh kurang dari 0.'
             ]
         );
 

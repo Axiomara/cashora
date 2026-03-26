@@ -1,85 +1,85 @@
 <style>
-#main {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: #f6f8fb;
-    min-height: 100vh;
-}
+    #main {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: #f6f8fb;
+        min-height: 100vh;
+    }
 
-.modern-card {
-    background: #ffffff;
-    border-radius: 1.25rem;
-    border: 1px solid #eef2f7;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
-}
+    .modern-card {
+        background: #ffffff;
+        border-radius: 1.25rem;
+        border: 1px solid #eef2f7;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    }
 
-.page-heading h4 {
-    font-weight: 700;
-    color: #0f172a;
-}
+    .page-heading h4 {
+        font-weight: 700;
+        color: #0f172a;
+    }
 
-.page-heading p {
-    color: #64748b;
-}
+    .page-heading p {
+        color: #64748b;
+    }
 
-.form-label {
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: #475569;
-    margin-bottom: .4rem;
-}
+    .form-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #475569;
+        margin-bottom: .4rem;
+    }
 
-.form-control,
-.form-select {
-    border-radius: .75rem;
-    border: 1px solid #e2e8f0;
-    background: #f9fbfd;
-    padding: .6rem .9rem;
-    transition: all .2s ease;
-}
+    .form-control,
+    .form-select {
+        border-radius: .75rem;
+        border: 1px solid #e2e8f0;
+        background: #f9fbfd;
+        padding: .6rem .9rem;
+        transition: all .2s ease;
+    }
 
-.form-control:focus,
-.form-select:focus {
-    background: #ffffff;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-}
+    .form-control:focus,
+    .form-select:focus {
+        background: #ffffff;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
 
-.btn-primary {
-    background: #4f46e5;
-    border: none;
-    border-radius: .75rem;
-    font-weight: 600;
-    padding: .65rem 1.6rem;
-}
+    .btn-primary {
+        background: #4f46e5;
+        border: none;
+        border-radius: .75rem;
+        font-weight: 600;
+        padding: .65rem 1.6rem;
+    }
 
-.btn-primary:hover {
-    background: #4338ca;
-}
+    .btn-primary:hover {
+        background: #4338ca;
+    }
 
-.btn-outline-secondary {
-    border-radius: .75rem;
-}
+    .btn-outline-secondary {
+        border-radius: .75rem;
+    }
 
-.badge-modern {
-    background: #eef2ff;
-    color: #4f46e5;
-    font-size: .7rem;
-    letter-spacing: .5px;
-    border-radius: .5rem;
-    font-weight: 600;
-}
+    .badge-modern {
+        background: #eef2ff;
+        color: #4f46e5;
+        font-size: .7rem;
+        letter-spacing: .5px;
+        border-radius: .5rem;
+        font-weight: 600;
+    }
 
-.alert {
-    border-radius: .75rem;
-    border: none;
-    font-size: .85rem;
-}
+    .alert {
+        border-radius: .75rem;
+        border: none;
+        font-size: .85rem;
+    }
 
-.divider {
-    height: 1px;
-    background: #f1f5f9;
-    margin: 2.5rem 0;
-}
+    .divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 2.5rem 0;
+    }
 </style>
 
 <div id="main" class="p-3 p-md-4">
@@ -141,19 +141,22 @@
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label">Kode Barang</label>
                             <input type="text"
-                                   name="kode_barang"
-                                   class="form-control <?= form_error('kode_barang') ? 'is-invalid' : '' ?>"
-                                   placeholder="BRG001"
-                                   value="<?= set_value('kode_barang') ?>">
+                                name="kode_barang"
+                                class="form-control"
+                                value="<?= $kode_auto ?>"
+                                readonly>
+                            <small class="text-muted">
+                                Kode otomatis dari sistem
+                            </small>
                         </div>
 
                         <div class="col-12 col-md-6 col-lg-3">
                             <label class="form-label">Barcode</label>
                             <input type="text"
-                                   name="barcode"
-                                   class="form-control <?= form_error('barcode') ? 'is-invalid' : '' ?>"
-                                   placeholder="Scan atau input barcode"
-                                   value="<?= set_value('barcode') ?>">
+                                name="barcode"
+                                class="form-control <?= form_error('barcode') ? 'is-invalid' : '' ?>"
+                                placeholder="Scan atau input barcode"
+                                value="<?= set_value('barcode') ?>">
                             <small class="text-muted">
                                 Bisa diisi manual atau menggunakan scanner
                             </small>
@@ -162,19 +165,10 @@
                         <div class="col-12 col-md-6 col-lg-4">
                             <label class="form-label">Nama Barang</label>
                             <input type="text"
-                                   name="nama_barang"
-                                   class="form-control <?= form_error('nama_barang') ? 'is-invalid' : '' ?>"
-                                   placeholder="Nama produk"
-                                   value="<?= set_value('nama_barang') ?>">
-                        </div>
-
-                        <div class="col-6 col-lg-1">
-                            <label class="form-label">Stok</label>
-                            <input type="number"
-                                   name="stok"
-                                   min="0"
-                                   class="form-control"
-                                   value="<?= set_value('stok') ?>">
+                                name="nama_barang"
+                                class="form-control <?= form_error('nama_barang') ? 'is-invalid' : '' ?>"
+                                placeholder="Nama produk"
+                                value="<?= set_value('nama_barang') ?>">
                         </div>
 
                         <div class="col-6 col-lg-2">
@@ -182,10 +176,10 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0">Rp</span>
                                 <input type="number"
-                                       name="harga_jual"
-                                       min="0"
-                                       class="form-control border-start-0"
-                                       value="<?= set_value('harga_jual') ?>">
+                                    name="harga_jual"
+                                    min="0"
+                                    class="form-control border-start-0"
+                                    value="<?= set_value('harga_jual') ?>">
                             </div>
                         </div>
 
@@ -204,7 +198,6 @@
                     </div>
 
                 </form>
-
             </div>
         </div>
 

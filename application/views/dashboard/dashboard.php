@@ -1,4 +1,6 @@
-<style>/    .kpi-icon {
+<style>
+
+.kpi-icon {
   width: 48px;
   height: 48px;
   border-radius: 16px;
