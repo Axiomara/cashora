@@ -24,6 +24,7 @@
 
   .detail-row {
     background-color: #f8f9fa;
+    display: none; /* 🔥 hidden default */
   }
 
   .total-amount {
@@ -74,96 +75,87 @@
 
         <tbody>
 
-          <?php if (!empty($pembelian)) : ?>
-            <?php foreach ($pembelian as $p) : ?>
+        <?php if (!empty($pembelian)) : ?>
+          <?php foreach ($pembelian as $p) : ?>
 
-              <tr>
-                <td class="fw-semibold">
-                  <?= $p->kode_pembelian ?>
-                </td>
-
-                <td>
-                  <?= $p->nama_supplier ?>
-                </td>
-
-                <td>
-                  <?= date('d M Y H:i', strtotime($p->tanggal)) ?>
-                </td>
-
-                <td class="total-amount">
-                  Rp<?= number_format($p->total,0,',','.') ?>
-                </td>
-
-                <td class="text-center">
-                  <button class="btn btn-outline-secondary btn-detail"
-                          type="button"
-                          data-bs-toggle="collapse"
-                          data-bs-target="#detail<?= $p->id_pembelian ?>">
-                    Lihat
-                  </button>
-                </td>
-              </tr>
-
-              <tr class="collapse detail-row"
-                  id="detail<?= $p->id_pembelian ?>">
-                <td colspan="5">
-
-                  <div class="p-3">
-
-                    <table class="table detail-table mb-0">
-
-                      <thead>
-                        <tr>
-                          <th>Barang</th>
-                          <th width="100">Qty</th>
-                          <th width="110">Satuan</th>
-                          <th width="140">Harga</th>
-                          <th width="160">Subtotal</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-
-                        <?php foreach ($p->detail as $d) : ?>
-                          <tr>
-                            <td>
-                              <?= $d->kode_barang ?> - <?= $d->nama_barang ?>
-                            </td>
-
-                            <td><?= $d->qty_input ?></td>
-
-                            <td><?= strtoupper($d->satuan) ?></td>
-
-                            <td>
-                              Rp<?= number_format($d->harga_input,0,',','.') ?>
-                            </td>
-
-                            <td class="fw-semibold">
-                              Rp<?= number_format($d->subtotal,0,',','.') ?>
-                            </td>
-                          </tr>
-                        <?php endforeach; ?>
-
-                      </tbody>
-
-                    </table>
-
-                  </div>
-
-                </td>
-              </tr>
-
-            <?php endforeach; ?>
-
-          <?php else : ?>
-
+            <!-- HEADER -->
             <tr>
-              <td colspan="5" class="text-center py-4 text-muted">
-                Belum ada data pembelian
+              <td class="fw-semibold"><?= $p->kode_pembelian ?></td>
+              <td><?= $p->nama_supplier ?></td>
+              <td><?= date('d M Y H:i', strtotime($p->tanggal)) ?></td>
+
+              <td class="total-amount">
+                Rp<?= number_format($p->total, 0, ',', '.') ?>
+              </td>
+
+              <td class="text-center">
+                <button class="btn btn-outline-secondary btn-detail"
+                        onclick="toggleDetail('<?= $p->id_pembelian ?>')">
+                  Lihat
+                </button>
               </td>
             </tr>
 
-          <?php endif; ?>
+            <!-- DETAIL -->
+            <tr class="detail-row" id="detail<?= $p->id_pembelian ?>">
+              <td colspan="5">
+
+                <div class="p-3">
+
+                  <table class="table detail-table mb-0">
+
+                    <thead>
+                      <tr>
+                        <th>Barang</th>
+                        <th width="100">Qty</th>
+                        <th width="110">Satuan</th>
+                        <th width="140">Harga</th>
+                        <th width="160">Subtotal</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <?php foreach ($p->detail as $d) : ?>
+                        <tr>
+                          <td><?= $d->kode_barang ?> - <?= $d->nama_barang ?></td>
+                          <td><?= $d->qty_input ?></td>
+                          <td><?= strtoupper($d->satuan) ?></td>
+                          <td>Rp<?= number_format($d->harga_input, 0, ',', '.') ?></td>
+                          <td class="fw-semibold">
+                            Rp<?= number_format($d->subtotal, 0, ',', '.') ?>
+                          </td>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+
+                    <tfoot>
+                      <tr>
+                        <td colspan="4" class="text-end fw-bold">
+                          Total Pembelian
+                        </td>
+                        <td class="fw-bold text-success">
+                          Rp<?= number_format($p->total, 0, ',', '.') ?>
+                        </td>
+                      </tr>
+                    </tfoot>
+
+                  </table>
+
+                </div>
+
+              </td>
+            </tr>
+
+          <?php endforeach; ?>
+        <?php else : ?>
+
+          <tr>
+            <td colspan="5" class="text-center py-4 text-muted">
+              Belum ada data pembelian
+            </td>
+          </tr>
+
+        <?php endif; ?>
 
         </tbody>
 
@@ -174,3 +166,16 @@
   </div>
 
 </div>
+
+<!-- 🔥 JS TANPA DELAY -->
+<script>
+function toggleDetail(id) {
+    const row = document.getElementById('detail' + id);
+
+    if (row.style.display === 'table-row') {
+        row.style.display = 'none';
+    } else {
+        row.style.display = 'table-row';
+    }
+}
+</script>

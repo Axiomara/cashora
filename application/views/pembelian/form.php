@@ -49,6 +49,22 @@
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
 
+
+          <?php if ($this->session->flashdata('success')) : ?>
+    <div class="alert alert-success alert-dismissible fade show">
+        <?= $this->session->flashdata('success') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+<?php if ($this->session->flashdata('error')) : ?>
+    <div class="alert alert-danger alert-dismissible fade show">
+        <?= $this->session->flashdata('error') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+
             <!-- Supplier & Tanggal -->
             <div class="row mb-4">
 

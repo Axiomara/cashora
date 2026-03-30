@@ -109,6 +109,21 @@
 
                     </li>
 
+                    <!-- SUPPLIER -->
+                    <li class="sidebar-item <?= 
+                        ($this->uri->uri_string() == 'laporan') 
+                        ? 'active' : '' ?>">
+
+                        <a href="<?= site_url('laporan') ?>" class="sidebar-link">
+
+                            <i class="bi bi-bar-chart-line"></i>
+
+                            <span>Laporan</span>
+
+                        </a>
+
+                    </li>
+
 
                     <!-- PEMBELIAN -->
                     <li class="sidebar-item <?= 

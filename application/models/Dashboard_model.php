@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Dashboard_model extends CI_Model {
+class Dashboard_model extends CI_Model
+{
 
     // =========================
     // OMZET HARI INI
@@ -37,7 +38,7 @@ class Dashboard_model extends CI_Model {
     public function get_stok_menipis($limit = null)
     {
         $this->db->where('stok <', 5)
-                 ->order_by('stok', 'ASC');
+            ->order_by('stok', 'ASC');
 
         if ($limit) {
             $this->db->limit($limit);
@@ -57,5 +58,59 @@ class Dashboard_model extends CI_Model {
             ->limit($limit)
             ->get('transaksi')
             ->result();
+    }
+
+    public function get_penjualan_per_hari($dari, $sampai)
+    {
+        return $this->db
+            ->select('DATE(tanggal) as tanggal, SUM(total) as total')
+            ->from('transaksi')
+            ->where('DATE(tanggal) >=', $dari)
+            ->where('DATE(tanggal) <=', $sampai)
+            ->group_by('DATE(tanggal)')
+            ->order_by('tanggal', 'ASC')
+            ->get()
+            ->result();
+    }
+
+    public function get_transaksi_per_hari($dari, $sampai)
+    {
+        return $this->db
+            ->select('DATE(tanggal) as tanggal, COUNT(*) as total')
+            ->from('transaksi')
+            ->where('DATE(tanggal) >=', $dari)
+            ->where('DATE(tanggal) <=', $sampai)
+            ->group_by('DATE(tanggal)')
+            ->order_by('tanggal', 'ASC')
+            ->get()
+            ->result();
+    }
+
+    public function get_omzet_harian()
+    {
+        $today = date('Y-m-d');
+
+        // omzet kotor
+        $omzet_kotor = $this->db
+            ->select_sum('total')
+            ->where('DATE(tanggal)', $today)
+            ->get('transaksi')
+            ->row()->total ?? 0;
+
+        // retur
+        $retur = $this->db
+            ->select('SUM(rd.qty * td.harga) as total')
+            ->from('retur_detail rd')
+            ->join('transaksi_detail td', 'td.id_detail = rd.id_detail')
+            ->join('transaksi t', 't.id_transaksi = td.id_transaksi')
+            ->where('DATE(t.tanggal)', $today)
+            ->get()
+            ->row()->total ?? 0;
+
+        return [
+            'omzet_kotor'  => $omzet_kotor,
+            'retur'        => $retur,
+            'omzet_bersih' => $omzet_kotor - $retur
+        ];
     }
 }
