@@ -22,7 +22,7 @@ class Dashboard extends CI_Controller
 
         // ✅ gabungkan semua ke dalam 1 $data
         $data = [
-            // omzet
+        
             'omzet_kotor'      => $omzet['omzet_kotor'],
             'retur_hari_ini'   => $omzet['retur'],
             'omzet_bersih'     => $omzet['omzet_bersih'],
