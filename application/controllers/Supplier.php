@@ -25,7 +25,6 @@ class Supplier extends CI_Controller
             $page = 0;
         }
 
-        // total data
         if (!empty($keyword)) {
             $total_rows = $this->Supplier_model->count_search($keyword);
         } else {
@@ -38,8 +37,6 @@ class Supplier extends CI_Controller
         $config['uri_segment'] = 2;
 
         $config['reuse_query_string'] = TRUE;
-
-        // style bootstrap
         $config['full_tag_open'] = '<nav><ul class="pagination justify-content-end">';
         $config['full_tag_close'] = '</ul></nav>';
 
