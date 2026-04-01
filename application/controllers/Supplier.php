@@ -12,9 +12,7 @@ class Supplier extends CI_Controller
         $this->load->model('Audit_log_model');
     }
 
-    // ===============================
-    // HALAMAN LIST SUPPLIER
-    // ===============================
+
     public function index()
     {
         $this->load->library('pagination');
