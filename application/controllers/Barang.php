@@ -1,6 +1,18 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+/**
+ * @property CI_Loader $load
+ * @property CI_Input $input
+ * @property CI_Output $output
+ * @property CI_Session $session
+ * @property CI_Pagination $pagination
+ * @property CI_DB_query_builder $db
+ * @property CI_Form_validation $form_validation
+ * @property Barang_model $Barang_model
+ * @property Audit_log_model $Audit_log_model
+ */
+
 class Barang extends CI_Controller
 {
 
@@ -10,15 +22,39 @@ class Barang extends CI_Controller
         $this->load->model('Barang_model');
         $this->load->library('form_validation');
         $this->load->model('Audit_log_model');
+        $this->load->helper('rupiah');
     }
 
     public function index()
     {
-        $keyword = $this->input->get('keyword', true);
-        $filter  = $this->input->get('filter', true);
-        $sort    = $this->input->get('sort', true);
-        $order   = $this->input->get('order', true);
+        $this->load->library('pagination');
 
+        // ================= INPUT (AMAN PHP 8+) =================
+        $keyword = trim((string) $this->input->get('keyword', TRUE));
+        $filter  = $this->input->get('filter', TRUE);
+        $sort    = $this->input->get('sort', TRUE);
+        $order   = $this->input->get('order', TRUE);
+
+        // ================= VALIDASI KEYWORD =================
+
+        // kosong → null
+        if ($keyword === '') {
+            $keyword = null;
+        }
+
+        // 🔥 hanya huruf, angka, spasi (anti manipulasi URL)
+        if ($keyword !== null) {
+            if (!preg_match('/^[a-zA-Z0-9\s]+$/', $keyword)) {
+                redirect('barang'); // tolak jika aneh
+            }
+
+            // 🔥 batasi panjang (anti spam)
+            if (strlen($keyword) > 50) {
+                $keyword = substr($keyword, 0, 50);
+            }
+        }
+
+        // ================= VALIDASI SORT =================
         $allowedSort = ['kode_barang', 'nama_barang', 'stok', 'harga_jual'];
 
         if (!in_array($sort, $allowedSort)) {
@@ -27,21 +63,55 @@ class Barang extends CI_Controller
 
         $order = ($order === 'desc') ? 'desc' : 'asc';
 
-        $data['list_barang'] = $this->Barang_model
-            ->get_filtered($keyword, $filter, $sort, $order);
+        // ================= TOTAL DATA =================
+        $total_rows = $this->Barang_model->count_filtered($keyword, $filter);
 
-        $data['keyword'] = $keyword;
-        $data['filter']  = $filter;
-        $data['sort']    = $sort;
-        $data['order']   = $order;
-        $data['kode_auto'] = $this->Barang_model->generate_kode();
+        // ================= PAGINATION =================
+        $config['base_url'] = base_url('barang/index');
+        $config['total_rows'] = $total_rows;
+        $config['per_page'] = 5;
+        $config['page_query_string'] = TRUE;
+        $config['reuse_query_string'] = TRUE;
 
+        // style pagination
+        $config['full_tag_open'] = '<ul class="pagination justify-content-end mt-3">';
+        $config['full_tag_close'] = '</ul>';
+        $config['first_link'] = 'Awal';
+        $config['last_link']  = 'Akhir';
+        $config['next_link']  = '&raquo;';
+        $config['prev_link']  = '&laquo;';
+        $config['attributes'] = ['class' => 'page-link'];
+
+        $this->pagination->initialize($config);
+
+        // ================= OFFSET =================
+        $offset = (int) ($this->input->get('per_page') ?? 0);
+
+        // ================= DATA =================
+        $data['list_barang'] = $this->Barang_model->get_paginated_filtered(
+            $config['per_page'],
+            $offset,
+            $keyword,
+            $filter,
+            $sort,
+            $order
+        );
+
+        // ================= DATA VIEW =================
+        $data['pagination']    = $this->pagination->create_links();
+        $data['keyword']       = $keyword;
+        $data['filter']        = $filter;
+        $data['currentSort']   = $sort;
+        $data['currentOrder']  = $order;
+        $data['kode_auto']     = $this->Barang_model->generate_kode();
+
+        // ================= LOAD VIEW =================
         $this->load->view('dashboard/header');
         $this->load->view('dashboard/sidebar');
         $this->load->view('product/input-produk', $data);
         $this->load->view('dashboard/footer');
     }
-
+    
     public function simpan()
     {
         $this->_rules_tambah();

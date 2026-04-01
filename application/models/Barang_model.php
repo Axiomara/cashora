@@ -15,9 +15,10 @@ class Barang_model extends CI_Model
     public function get_all($order = 'DESC')
     {
         return $this->db
-            ->select('id_barang, kode_barang, nama_barang, stok, isi_karton, harga_jual')
-            ->from($this->table)
-            ->order_by('id_barang', $order)
+            ->select('barang.*, supplier.nama_supplier')
+            ->from('barang')
+            ->join('supplier', 'supplier.id_supplier = barang.supplier_terakhir', 'left')
+            ->order_by('barang.id_barang', $order)
             ->get()
             ->result();
     }
@@ -198,5 +199,46 @@ class Barang_model extends CI_Model
         }
 
         return 'BRG' . str_pad($num, 3, '0', STR_PAD_LEFT);
+    }
+
+    public function count_filtered($keyword = null)
+    {
+        $this->db->from('barang');
+
+        if (!empty($keyword)) {
+            $this->db->group_start();
+            $this->db->like('kode_barang', $keyword);
+            $this->db->or_like('nama_barang', $keyword);
+            $this->db->group_end();
+        }
+
+        return $this->db->count_all_results();
+    }
+
+    public function get_paginated_filtered($limit, $offset, $keyword, $filter, $sort, $order)
+    {
+        $this->db->select('barang.*, supplier.nama_supplier');
+        $this->db->from('barang');
+        $this->db->join('supplier', 'supplier.id_supplier = barang.supplier_terakhir', 'left');
+
+        if (!empty($keyword)) {
+            $this->db->group_start();
+            $this->db->like('barang.kode_barang', $keyword);
+            $this->db->or_like('barang.nama_barang', $keyword);
+            $this->db->group_end();
+        }
+
+        $allowed_sort = ['kode_barang', 'nama_barang', 'stok', 'harga_jual'];
+
+        if (in_array($sort, $allowed_sort)) {
+            $this->db->order_by($sort, $order);
+        } else {
+            $this->db->order_by('id_barang', 'DESC');
+        }
+
+        return $this->db
+            ->limit($limit, $offset)
+            ->get()
+            ->result();
     }
 }

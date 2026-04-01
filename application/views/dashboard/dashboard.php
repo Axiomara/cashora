@@ -1,32 +1,50 @@
 <style>
+  .kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
 
-.kpi-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
+  .kpi-icon i {
+    font-size: 22px;
+  }
 
-.kpi-icon i {
-  font-size: 22px;
-}
+  /* Variasi warna background + icon */
+  .kpi-icon.primary {
+    background: #eef2ff;
+  }
 
-/* Variasi warna background + icon */
-.kpi-icon.primary { background: #eef2ff; }
-.kpi-icon.primary i { color: #4f46e5; }
+  .kpi-icon.primary i {
+    color: #4f46e5;
+  }
 
-.kpi-icon.info { background: #ecfeff; }
-.kpi-icon.info i { color: #0891b2; }
+  .kpi-icon.info {
+    background: #ecfeff;
+  }
 
-.kpi-icon.success { background: #ecfdf5; }
-.kpi-icon.success i { color: #16a34a; }
+  .kpi-icon.info i {
+    color: #0891b2;
+  }
 
-.kpi-icon.warning { background: #fff7ed; }
-.kpi-icon.warning i { color: #ea580c; }
+  .kpi-icon.success {
+    background: #ecfdf5;
+  }
 
+  .kpi-icon.success i {
+    color: #16a34a;
+  }
+
+  .kpi-icon.warning {
+    background: #fff7ed;
+  }
+
+  .kpi-icon.warning i {
+    color: #ea580c;
+  }
 </style>
 
 <div id="main">
@@ -63,139 +81,139 @@
         <div class="row g-3 mb-1">
 
           <!-- Omzet -->
-         <div class="col-12 col-sm-6 col-lg-3">
-  <div class="card shadow-sm border-0 h-100">
-    <div class="card-body p-4">
-      <div class="d-flex align-items-start justify-content-between gap-3">
-        <div>
-          <p class="text-muted mb-1">Omzet Hari Ini</p>
-          <h4 class="mb-0">
-            <?= format_rupiah($omzet_hari_ini ?? 0) ?>
-          </h4>
-          <small class="text-muted">Total penjualan hari ini</small>
-        </div>
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                  <div>
+                    <p class="text-muted mb-1">Omzet Hari Ini</p>
+                    <h4 class="mb-0">
+                      <?= number_format($omzet_hari_ini ?? 0) ?>
+                    </h4>
+                    <small class="text-muted">Total penjualan hari ini</small>
+                  </div>
 
-        <div class="kpi-icon primary">
-          <i class="bi bi-cash-coin"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+                  <div class="kpi-icon primary">
+                    <i class="bi bi-cash-coin"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-<div class="col-12 col-sm-6 col-lg-3">
-  <div class="card shadow-sm border-0 h-100">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-between">
-        <div>
-          <p class="text-muted mb-1">Omzet Kotor</p>
-          <h5 class="mb-0 text-primary">
-            <?= format_rupiah($omzet_kotor ?? 0) ?>
-          </h5>
-          <small class="text-muted">Total penjualan</small>
-        </div>
-        <div class="kpi-icon primary">
-          <i class="bi bi-cash"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-muted mb-1">Omzet Kotor</p>
+                    <h5 class="mb-0 text-primary">
+                      <?= number_format($omzet_kotor ?? 0) ?>
+                    </h5>
+                    <small class="text-muted">Total penjualan</small>
+                  </div>
+                  <div class="kpi-icon primary">
+                    <i class="bi bi-cash"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-<div class="col-12 col-sm-6 col-lg-3">
-  <div class="card shadow-sm border-0 h-100">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-between">
-        <div>
-          <p class="text-muted mb-1">Retur</p>
-          <h5 class="mb-0 text-warning">
-            <?= format_rupiah($retur_hari_ini ?? 0) ?>
-          </h5>
-          <small class="text-muted">Pengembalian</small>
-        </div>
-        <div class="kpi-icon warning">
-          <i class="bi bi-arrow-counterclockwise"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-muted mb-1">Retur</p>
+                    <h5 class="mb-0 text-warning">
+                      <?= number_format($retur_hari_ini ?? 0) ?>
+                    </h5>
+                    <small class="text-muted">Pengembalian</small>
+                  </div>
+                  <div class="kpi-icon warning">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-<div class="col-12 col-sm-6 col-lg-3">
-  <div class="card shadow-sm border-0 h-100">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-between">
-        <div>
-          <p class="text-muted mb-1">Omzet Bersih</p>
-          <h5 class="mb-0 text-success">
-            <?= format_rupiah($omzet_bersih ?? 0) ?>
-          </h5>
-          <small class="text-muted">Setelah retur</small>
-        </div>
-        <div class="kpi-icon success">
-          <i class="bi bi-graph-up-arrow"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-muted mb-1">Omzet Bersih</p>
+                    <h5 class="mb-0 text-success">
+                      <?= number_format($omzet_bersih ?? 0) ?>
+                    </h5>
+                    <small class="text-muted">Setelah retur</small>
+                  </div>
+                  <div class="kpi-icon success">
+                    <i class="bi bi-graph-up-arrow"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-<!-- Transaksi -->
-<div class="col-12 col-sm-6 col-lg-3">
-  <div class="card shadow-sm border-0 h-100">
-    <div class="card-body p-4">
-      <div class="d-flex align-items-start justify-content-between gap-3">
-        <div>
-          <p class="text-muted mb-1">Transaksi</p>
-          <h4 class="mb-0"><?= $jumlah_transaksi ?? 0 ?></h4>
-          <small class="text-muted">Transaksi hari ini</small>
-        </div>
+          <!-- Transaksi -->
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                  <div>
+                    <p class="text-muted mb-1">Transaksi</p>
+                    <h4 class="mb-0"><?= $jumlah_transaksi ?? 0 ?></h4>
+                    <small class="text-muted">Transaksi hari ini</small>
+                  </div>
 
-        <div class="kpi-icon info">
-          <i class="bi bi-receipt"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+                  <div class="kpi-icon info">
+                    <i class="bi bi-receipt"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-<!-- Total Barang -->
-<div class="col-12 col-sm-6 col-lg-3">
-  <div class="card shadow-sm border-0 h-100">
-    <div class="card-body p-4">
-      <div class="d-flex align-items-start justify-content-between gap-3">
-        <div>
-          <p class="text-muted mb-1">Total Barang</p>
-          <h4 class="mb-0"><?= $total_barang ?? 0 ?></h4>
-          <small class="text-muted">Barang terdaftar</small>
-        </div>
+          <!-- Total Barang -->
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                  <div>
+                    <p class="text-muted mb-1">Total Barang</p>
+                    <h4 class="mb-0"><?= $total_barang ?? 0 ?></h4>
+                    <small class="text-muted">Barang terdaftar</small>
+                  </div>
 
-        <div class="kpi-icon success">
-          <i class="bi bi-box-seam"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+                  <div class="kpi-icon success">
+                    <i class="bi bi-box-seam"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-<!-- Stok Menipis -->
-<div class="col-12 col-sm-6 col-lg-3">
-  <div class="card shadow-sm border-0 h-100">
-    <div class="card-body p-4">
-      <div class="d-flex align-items-start justify-content-between gap-3">
-        <div>
-          <p class="text-muted mb-1">Stok Menipis</p>
-          <h4 class="mb-0"><?= $stok_menipis ?? 0 ?></h4>
-          <small class="text-muted">Perlu restock</small>
-        </div>
+          <!-- Stok Menipis -->
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                  <div>
+                    <p class="text-muted mb-1">Stok Menipis</p>
+                    <h4 class="mb-0"><?= $stok_menipis ?? 0 ?></h4>
+                    <small class="text-muted">Perlu restock</small>
+                  </div>
 
-        <div class="kpi-icon warning">
-          <i class="bi bi-exclamation-triangle"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+                  <div class="kpi-icon warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
         </div>
 
@@ -317,7 +335,7 @@
                               <?= date('d-m-Y H:i', strtotime($t->tanggal)) ?>
                             </td>
                             <td class="text-end fw-semibold">
-                              <?= format_rupiah($t->total) ?>
+                              <?= number_format($t->total) ?>
                             </td>
                           </tr>
                         <?php endforeach; ?>
@@ -408,104 +426,102 @@
 
   <footer></footer>
 
-              
 
 
-<script>
-const chartLabels = [
-    <?php foreach($penjualan_harian as $p): ?>
-        "<?= date('d M', strtotime($p->tanggal)) ?>",
-    <?php endforeach; ?>
-];
 
-const chartPenjualan = [
-    <?php foreach($penjualan_harian as $p): ?>
+  <script>
+    const chartLabels = [
+      <?php foreach ($penjualan_harian as $p): ?> "<?= date('d M', strtotime($p->tanggal)) ?>",
+      <?php endforeach; ?>
+    ];
+
+    const chartPenjualan = [
+      <?php foreach ($penjualan_harian as $p): ?>
         <?= $p->total ?>,
-    <?php endforeach; ?>
-];
+      <?php endforeach; ?>
+    ];
 
-const chartTransaksi = [
-    <?php foreach($transaksi_harian as $t): ?>
+    const chartTransaksi = [
+      <?php foreach ($transaksi_harian as $t): ?>
         <?= $t->total ?>,
-    <?php endforeach; ?>
-];
-</script>
+      <?php endforeach; ?>
+    ];
+  </script>
 
 
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 
-<script>
-function formatRupiah(angka) {
-    return 'Rp' + angka.toLocaleString('id-ID');
-}
+  <script>
+    function formatRupiah(angka) {
+      return 'Rp' + angka.toLocaleString('id-ID');
+    }
 
-var options = {
-    chart: {
+    var options = {
+      chart: {
         type: 'area',
         height: 250,
-        toolbar: { show: false }
-    },
-    series: [
-        {
-            name: 'Penjualan',
-            data: chartPenjualan
+        toolbar: {
+          show: false
+        }
+      },
+      series: [{
+          name: 'Penjualan',
+          data: chartPenjualan
         },
         {
-            name: 'Transaksi',
-            data: chartTransaksi
+          name: 'Transaksi',
+          data: chartTransaksi
         }
-    ],
-    xaxis: {
+      ],
+      xaxis: {
         categories: chartLabels
-    },
-    stroke: {
+      },
+      stroke: {
         curve: 'smooth'
-    },
-    colors: ['#0d6efd', '#198754'],
-    dataLabels: {
+      },
+      colors: ['#0d6efd', '#198754'],
+      dataLabels: {
         enabled: false
-    },
-    yaxis: [
-        {
-            labels: {
-                formatter: function (val) {
-                    return formatRupiah(val);
-                }
-            },
-            title: {
-                text: 'Penjualan (Rp)'
+      },
+      yaxis: [{
+          labels: {
+            formatter: function(val) {
+              return formatRupiah(val);
             }
+          },
+          title: {
+            text: 'Penjualan (Rp)'
+          }
         },
         {
-            opposite: true,
-            labels: {
-                formatter: function (val) {
-                    return val;
-                }
-            },
-            title: {
-                text: 'Jumlah Transaksi'
+          opposite: true,
+          labels: {
+            formatter: function(val) {
+              return val;
             }
+          },
+          title: {
+            text: 'Jumlah Transaksi'
+          }
         }
-    ],
+      ],
 
-    tooltip: {
-        y: [
-            {
-                formatter: function (val) {
-                    return formatRupiah(val);
-                }
-            },
-            {
-                formatter: function (val) {
-                    return val + ' transaksi';
-                }
+      tooltip: {
+        y: [{
+            formatter: function(val) {
+              return formatRupiah(val);
             }
+          },
+          {
+            formatter: function(val) {
+              return val + ' transaksi';
+            }
+          }
         ]
-    }
-};
+      }
+    };
 
-var chart = new ApexCharts(document.querySelector("#chart-penjualan-harian"), options);
-chart.render();
-</script>
+    var chart = new ApexCharts(document.querySelector("#chart-penjualan-harian"), options);
+    chart.render();
+  </script>
