@@ -54,9 +54,10 @@ class Laporan extends CI_Controller
         $data['sampai'] = $sampai;
 
         // ================= VIEW =================
-        $this->load->view('dashboard/header');
-          $this->load->view('laporan/index', $data);
-        $this->load->view('dashboard/sidebar');
+        $data['title'] = 'Dashboard Laporan';
+        $this->load->view('dashboard/header', $data);
+        $this->load->view('dashboard/sidebar', $data);
+        $this->load->view('laporan/index', $data);
         $this->load->view('dashboard/footer');
     }
 }
